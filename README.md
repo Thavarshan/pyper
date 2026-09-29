@@ -172,4 +172,4 @@ Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
-[MIT](LICENSE) © Jerome Thavarshan
+[MIT](LICENSE) © Jerome Thayananthajothy

@@ -9,7 +9,7 @@ description = "Python learning playground: progressive coding challenges solved 
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{ name = "Jerome Thavarshan", email = "jerome@sinolanka.com" }]
+authors = [{ name = "Jerome Thayananthajothy", email = "jerome@sinolanka.com" }]
 keywords = ["python", "learning", "coding-challenges", "leetcode", "pytest", "algorithms", "data-structures"]
 classifiers = [
     "Development Status :: 3 - Alpha",
