@@ -1,5 +1,9 @@
 # pyper
 
+[![tests](https://github.com/Thavarshan/pyper/actions/workflows/tests.yml/badge.svg)](https://github.com/Thavarshan/pyper/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml)
+
 A Python learning playground: 94 coding challenges that start with the basics
 and build up to LeetCode-style algorithms. You solve them **test-first**.
 
@@ -158,3 +162,14 @@ Tick off challenges as you finish them:
 - [ ] Level 10: Data structures (0/8)
 - [ ] Level 11: Trees & graphs (0/8)
 - [ ] Level 12: Algorithms (0/9)
+
+## Contributing
+
+This is a personal learning repo, so it isn't looking for solved-challenge
+pull requests. Bug reports (a wrong example, an ambiguous spec) and proposals
+for new challenges are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+[MIT](LICENSE) © Jerome Thavarshan

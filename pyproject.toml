@@ -8,7 +8,25 @@ version = "0.1.0"
 description = "Python learning playground: progressive coding challenges solved test-first."
 readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Jerome Thavarshan", email = "jerome@sinolanka.com" }]
+keywords = ["python", "learning", "coding-challenges", "leetcode", "pytest", "algorithms", "data-structures"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Topic :: Education",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = []
+
+[project.urls]
+Repository = "https://github.com/Thavarshan/pyper"
+Issues = "https://github.com/Thavarshan/pyper/issues"
 
 [project.optional-dependencies]
 dev = [
