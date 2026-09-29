@@ -33,8 +33,10 @@ jobs:
         # challenges have tests written for them. Any other non-zero
         # exit code (failures, errors, collection errors) still fails CI.
         run: |
+          set +e
           pytest -q
           code=$?
+          set -e
           if [ "$code" -ne 0 ] && [ "$code" -ne 5 ]; then
             exit "$code"
           fi
