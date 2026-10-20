@@ -24,14 +24,7 @@ There are no runtime dependencies. Every challenge uses only the standard librar
 
 ## Setup
 
-The `.venv` virtual environment is already created with everything installed.
-Activate it in each new terminal:
-
-```bash
-source .venv/bin/activate
-```
-
-To rebuild it from scratch (e.g. on a new machine):
+Create the virtual environment and install the development dependencies:
 
 ```bash
 python3 -m venv .venv
@@ -39,6 +32,8 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -e ".[dev]"
 ```
+
+Activate it in each new terminal with `source .venv/bin/activate`.
 
 `pip install -e .` installs the `challenges` package in *editable* mode, so
 edits to your solutions are picked up immediately without reinstalling.
@@ -77,8 +72,9 @@ pytest --lf                                # re-run only the tests that failed l
 pytest --cov=challenges --cov-report=term-missing   # coverage, with uncovered lines
 ```
 
-> A fresh checkout reports `no tests ran` (exit code 5) because the test files
-> contain only commented-out examples. That changes once you write tests.
+> Tests are already written for the first three challenges, whose current
+> implementations pass, including the FizzBuzz stretch goals.
+> The remaining challenge test files contain commented-out examples.
 
 ### pytest tips for these challenges
 

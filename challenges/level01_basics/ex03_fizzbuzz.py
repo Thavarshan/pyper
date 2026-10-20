@@ -94,12 +94,36 @@ def fizzbuzz(n: int) -> list[str]:
     """
     if n < 0:
         raise ValueError(f"{n} cannot be a negative integer")
-    elif n == 0:
-        return []
-    elif n == 1:
-        return ['1']
+
+    return [determine_word(num) for num in range(1, n+1)]
+
+
+def determine_word(num: int) -> str:
+    if num % 3 == 0 and num % 5 == 0:
+        return "FizzBuzz"
+    elif num % 3 == 0:
+        return "Fizz"
+    elif num % 5 == 0:
+        return "Buzz"
+    else:
+        return str(num)
+
+
+def fizzbuzz_custom(num: int, rules: dict[int, str]) -> list[str]:
+    if num < 0:
+        raise ValueError(f"{num} cannot be a negative integer")
 
     results: list[str] = []
 
-    for num in range(1, n+1):
-        if num %
+    for num in range(1, num + 1):
+        final_word = ""
+        for divisor, word in rules.items():
+            if num % divisor == 0:
+                final_word += word
+
+        if final_word != "":
+            results.append(final_word)
+        else:
+            results.append(str(num))
+
+    return results
