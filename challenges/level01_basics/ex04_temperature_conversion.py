@@ -106,8 +106,9 @@ def celsius_to_fahrenheit(c: float) -> float:
     Raises:
         ValueError: If `c` is below absolute zero (-273.15).
     """
-    # TODO: implement me, then make your tests pass.
-    raise NotImplementedError
+    if c < -273.15:
+        raise ValueError("Nothing can be colder")
+    return ((c * 9) / 5) + 32
 
 
 def fahrenheit_to_celsius(f: float) -> float:
@@ -122,5 +123,6 @@ def fahrenheit_to_celsius(f: float) -> float:
     Raises:
         ValueError: If `f` is below absolute zero (-459.67).
     """
-    # TODO: implement me, then make your tests pass.
-    raise NotImplementedError
+    if f < -459.67:
+        raise ValueError("Nothing can be colder")
+    return (f - 32) * 5 / 9
