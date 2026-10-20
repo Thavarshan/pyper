@@ -88,7 +88,7 @@ STRETCH GOALS
 """
 
 
-def greet(name: str) -> str:
+def greet(name: str, greeting: str = "Hello") -> str:
     """Return a greeting for `name`.
 
     Args:
@@ -98,5 +98,9 @@ def greet(name: str) -> str:
         "Hello, <name>!" with the stripped name, or "Hello, World!" if the
         stripped name is empty.
     """
-    # TODO: implement me, then make your tests pass.
-    raise NotImplementedError
+    name = name.strip() or "World"
+    return f"{greeting}, {name}!"
+
+
+def greet_all(names: list[str]) -> list[str]:
+    return [greet(name) for name in names]

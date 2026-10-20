@@ -94,8 +94,8 @@ def is_even(n: int) -> bool:
     Returns:
         True when `n` is divisible by 2, otherwise False.
     """
-    # TODO: implement me, then make your tests pass.
-    raise NotImplementedError
+    return n % 2 == 0
+
 
 
 def even_or_odd(n: int) -> str:
@@ -107,5 +107,21 @@ def even_or_odd(n: int) -> str:
     Returns:
         The string "even" or "odd".
     """
-    # TODO: implement me, then make your tests pass.
-    raise NotImplementedError
+    return "even" if is_even(n) else "odd"
+
+
+def split_even_odd(nums: list[int]) -> tuple[list[int], list[int]]:
+    evens: list[int] = []
+    odds: list[int] = []
+
+    for num in nums:
+        if is_even(num):
+            evens.append(num)
+        else:
+            odds.append(num)
+
+    return (evens, odds)
+
+
+def is_even_bitwise(num: int) -> bool:
+    return (num & 1) == 0

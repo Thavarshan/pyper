@@ -92,5 +92,14 @@ def fizzbuzz(n: int) -> list[str]:
     Raises:
         ValueError: If `n` is negative.
     """
-    # TODO: implement me, then make your tests pass.
-    raise NotImplementedError
+    if n < 0:
+        raise ValueError(f"{n} cannot be a negative integer")
+    elif n == 0:
+        return []
+    elif n == 1:
+        return ['1']
+
+    results: list[str] = []
+
+    for num in range(1, n+1):
+        if num %
