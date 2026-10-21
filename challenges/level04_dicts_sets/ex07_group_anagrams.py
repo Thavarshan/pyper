@@ -5,63 +5,83 @@ Topics:    choosing a dict key, tuples as keys, grouping, sorted()
 Source:    LeetCode #49 "Group Anagrams"
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-Two words are "anagrams" of each other if you can rearrange the
-letters of one to get the other, using every letter exactly once.
-"listen" and "silent" are anagrams; "abc" and "abcc" are not.
+Write `group_anagrams(words)`. Put words that are anagrams of each
+other into the same group, and return the list of groups (a list of
+lists of words).
 
-Given a list of words, put the words that are anagrams of each other
-into the same group, and return the list of groups.
+    group_anagrams(["eat", "tea", "tan", "ate", "nat", "bat"])
+        ->  [['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]
 
-Ordering rules (so your tests have one exact right answer):
-- Groups appear in the order in which their FIRST word appears in the
-  input.
-- Inside each group, words keep their original input order.
-- Duplicate words are kept: ["a", "a"] -> [["a", "a"]].
+========================================================================
+WHAT AN "ANAGRAM" IS
+========================================================================
+Two words are anagrams of each other if you can rearrange the letters
+of one to get the other, using every letter exactly once.
 
-Comparison is case-SENSITIVE and exact: "Tea" and "eat" are NOT
-anagrams ('T' != 't'). Empty string "" is a valid word (it is an anagram
-only of another "").
+    "listen" and "silent"   ->  anagrams (same letters, new order)
+    "abc" and "abcc"        ->  NOT anagrams ("abcc" has an extra c)
+
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Return a `list[list[str]]`: a list of groups, each group a list of
+   words.
+2. Order the groups by when their FIRST word appears in the input.
+3. Keep the words inside each group in their original input order.
+4. Keep duplicate words: ["a", "a"] -> [["a", "a"]].
+5. Compare words exactly and case-SENSITIVELY: "Tea" and "eat" are
+   NOT anagrams ('T' is not 't').
+6. Treat the empty string "" as a valid word. It is an anagram only of
+   another "".
+7. Not change (mutate) `words`.
+
+You can assume:
+- `words` is a list of str with 0 to 10_000 words.
+- Each word is 0 to 100 characters long.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> group_anagrams(["eat", "tea", "tan", "ate", "nat", "bat"])
-    [['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]
+Each line shows a call, then what it should return.
 
-    >>> group_anagrams([""])
-    [['']]
+    group_anagrams(["eat", "tea", "tan", "ate", "nat", "bat"])
+        ->  [['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]
+        "eat" comes first, so its group is first. "tan" starts the
+        second group and "bat" the third.
 
-    >>> group_anagrams(["a"])
-    [['a']]
+    group_anagrams([""])   ->  [['']]
+        One empty word makes one group.
 
-    >>> group_anagrams([])
-    []
+    group_anagrams(["a"])  ->  [['a']]
+        One word makes one group.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `words` is a list of str, length 0 to 10_000; each word 0 to 100 chars.
-- Return a `list[list[str]]` following the ordering rules above.
-- Do not modify `words`.
+    group_anagrams([])     ->  []
+        No words, so no groups.
 
 ========================================================================
 COMPLEXITY TARGET
 ========================================================================
-- Time O(n * k log k), space O(n * k) for n words of length up to k:
-  each word is sorted once to build its key, then grouped in O(1).
+- O(n * k log k) time, for n words of length up to k. Each word is
+  sorted once to build its key (about k log k steps), then added to
+  its group with one dict lookup, which is O(1) (the same tiny time
+  however big the dict is).
+- O(n * k) space: the dict stores every word, plus a key of up to k
+  characters for each group.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Empty input list             -> []
-- A single empty string [""]   -> [[""]]
-- No anagrams at all           -> each word in its own group
-- All words anagrams           -> one group
-- Duplicate words ["ab", "ba", "ab"] -> [["ab", "ba", "ab"]]
-- Case sensitivity ["Ab", "bA", "ab"] -> [["Ab", "bA"], ["ab"]]
-- Group order follows first appearance
+- Empty input list: [] -> []
+- A single empty string: [""] -> [['']]
+- No anagrams at all: ["abc", "def"] -> [['abc'], ['def']]
+- All words anagrams: ["abc", "cab", "bca"] -> [['abc', 'cab', 'bca']]
+- Duplicate words: ["ab", "ba", "ab"] -> [['ab', 'ba', 'ab']]
+- Case sensitivity: ["Ab", "bA", "ab"] -> [['Ab', 'bA'], ['ab']]
+- Group order follows first appearance: ["b", "a", "b"]
+  -> [['b', 'b'], ['a']]
 
 ========================================================================
 HINTS (read only if you get stuck)
@@ -73,12 +93,13 @@ HINTS (read only if you get stuck)
 3. Build a dict: key -> list of words. `setdefault` or
    `defaultdict(list)` help here.
 4. Because dicts remember insertion order, `list(groups.values())`
-   already gives you groups in first-appearance order.
+   already gives you the groups in first-appearance order.
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
 ========================================================================
-- Designing a "canonical key" so equivalent items collide in a dict
+- Designing a "canonical key" (one standard form that all equivalent
+  items share) so equivalent items land on the same dict key
 - `sorted()` on a string returns a list of characters
 - `str.join()`
 - Tuples as dict keys

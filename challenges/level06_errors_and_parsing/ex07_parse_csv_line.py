@@ -1,110 +1,147 @@
-"""
+r"""
 Challenge: Parse a CSV Line
 Level:     06 - Errors and Parsing
 Topics:    state machines, character-by-character parsing, quoting rules
 Source:    Simplified RFC 4180 (the CSV format standard)
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-CSV ("comma-separated values") looks easy - just split on commas? But
-what if a field itself contains a comma, like an address? CSV solves it
-with QUOTING. Write `parse_csv_line(line)` that splits ONE line of CSV
-into a list of field strings, following these rules:
+Write `parse_csv_line(line)`. It splits ONE line of CSV
+("comma-separated values") text into a list of field strings,
+following the CSV quoting rules.
 
-1. Fields are separated by commas.
+    parse_csv_line('"Smith, John",42,"New York"')
+        ->  ['Smith, John', '42', 'New York']
+
+========================================================================
+BACKGROUND: WHY CSV NEEDS QUOTES
+========================================================================
+CSV looks easy: just split on commas? But what if a field itself
+contains a comma, like an address or "Smith, John"? Splitting on every
+comma cuts it in two:
+
+    '"Smith, John",42'.split(",")  ->  ['"Smith', ' John"', '42']
+
+CSV solves this with QUOTING. Wrap a field in double quotes, and any
+commas inside the quotes are ordinary characters:
+
+    "Smith, John",42      two fields:  Smith, John   and   42
+
+If a quoted field needs a double-quote character inside it, write two
+double quotes in a row. This is called "escaping":
+
+    "say ""hi"" now"      one field:   say "hi" now
+
+(In this section and in THE RULES, CSV text is shown raw, the way it
+would appear in a file, with no Python quotes around it.)
+
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Separate fields with commas:
        a,b,c              -> ['a', 'b', 'c']
-2. Whitespace is part of the field (it is NOT stripped).
+2. Keep whitespace as part of the field (do NOT strip it):
        a, b               -> ['a', ' b']
-3. Empty fields are allowed, and n commas always mean n + 1 fields.
+3. Allow empty fields. n commas always mean n + 1 fields:
        a,,c               -> ['a', '', 'c']
        (an empty line)    -> ['']            (one empty field)
        ,                  -> ['', '']
-4. A field that STARTS with a double quote (") is a "quoted field". It
-   continues until the matching closing quote. Inside it, commas are
-   ordinary characters, and the surrounding quotes are NOT part of the
-   value.
+4. Treat a field that STARTS with a double quote (") as a "quoted
+   field". It continues until the matching closing quote. Inside it,
+   commas are ordinary characters, and the surrounding quotes are NOT
+   part of the value:
        "hello, world",x   -> ['hello, world', 'x']
-5. Inside a quoted field, two double quotes in a row ("") stand for ONE
-   literal double-quote character. This is called "escaping".
+5. Inside a quoted field, read two double quotes in a row ("") as ONE
+   literal double-quote character:
        "say ""hi"" now"   -> ['say "hi" now']
-6. After a closing quote, the next character must be a comma or the end
-   of the line. Anything else is an error.
+6. After a closing quote, require a comma or the end of the line.
+   Raise ValueError for anything else:
        "abc"def           -> ValueError
-7. A quote character that appears in the MIDDLE of an unquoted field is
-   just an ordinary character.
+7. Treat a quote in the MIDDLE of an unquoted field as an ordinary
+   character:
        ab"c,d             -> ['ab"c', 'd']
-8. A quoted field with no closing quote is an error:
-       "abc,def           -> ValueError("unterminated quoted field")
+8. Raise ValueError("unterminated quoted field") for a quoted field
+   with no closing quote:
+       "abc,def           -> ValueError: unterminated quoted field
+9. Always return a list[str] with at least one element.
+10. Not use the `csv` module (comparing with it is a stretch goal) or
+    regular expressions. Practise the loop!
 
-Do NOT use the `csv` module (comparing with it is a stretch goal).
-The line will not contain newline characters.
+You can assume:
+- `line` is a str with no newline characters ("\n").
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> parse_csv_line("name,age,city")
-    ['name', 'age', 'city']
+Each line shows a call, then what it should return. The calls use
+single-quoted Python strings, so the double quotes inside them are
+part of the CSV text.
 
-    >>> parse_csv_line('"Smith, John",42,"New York"')
-    ['Smith, John', '42', 'New York']
+    parse_csv_line("name,age,city")   ->  ['name', 'age', 'city']
+        Plain fields, split on the commas.
 
-    >>> parse_csv_line('a,"say ""cheese"" now",c')
-    ['a', 'say "cheese" now', 'c']
+    parse_csv_line('"Smith, John",42,"New York"')
+        ->  ['Smith, John', '42', 'New York']
+        The comma inside the quotes doesn't split. The quotes
+        themselves are removed.
 
-    >>> parse_csv_line('""')             # a quoted empty field
-    ['']
+    parse_csv_line('a,"say ""cheese"" now",c')
+        ->  ['a', 'say "cheese" now', 'c']
+        Each "" inside the quoted field becomes one ".
 
-    >>> parse_csv_line('"oops,1')
-    Traceback (most recent call last):
-    ...
-    ValueError: unterminated quoted field
+    parse_csv_line('""')              ->  ['']
+        A quoted field with nothing inside: one empty field.
+
+    parse_csv_line('"oops,1')
+        ->  raises ValueError: unterminated quoted field
+        The quote is never closed, so the comma counts as part of the
+        field, and the line ends in the middle of it.
 
 Tip: in your tests, use single-quoted Python strings for CSV text that
 contains double quotes, as above, so you don't need backslashes.
 
 ========================================================================
-CONSTRAINTS
-========================================================================
-- `line` is a str without "\\n". Return a list[str] with at least one
-  element.
-- Raise `ValueError` for an unterminated quoted field and for any
-  character other than a comma directly after a closing quote.
-- No `csv` module, no regular expressions (practise the loop!).
-
-========================================================================
 COMPLEXITY TARGET
 ========================================================================
-- Time O(n), space O(n): a single pass over the characters, building
-  each field once.
+- Time O(n), where n is the length of the line: a single pass over the
+  characters, with no loop inside a loop.
+- Space O(n): each field is built once, so the extra memory grows only
+  in step with the length of the line.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Plain fields; spaces preserved
-- Empty line "" -> ['']; "," -> ['', '']; "a," -> ['a', '']
-- Quoted field containing commas
-- Escaped quotes "" inside a quoted field
-- Quoted empty field '""' -> [''] and '"",""' -> ['', '']
-- Quote in the middle of an unquoted field is literal
-- Unterminated quote '"abc' -> ValueError
-- Junk after closing quote '"a"b,c' -> ValueError
-- A quoted field that is last on the line, and one that is first
+- Plain fields: "a,b" -> ['a', 'b']. Spaces are kept:
+  "a, b" -> ['a', ' b']
+- Empty line "" -> ['']. Also "," -> ['', ''] and "a," -> ['a', '']
+- A quoted field containing commas: '"a,b",c' -> ['a,b', 'c']
+- Escaped quotes inside a quoted field: '"x""y"' -> ['x"y']
+- Quoted empty fields: '""' -> [''] and '"",""' -> ['', '']
+- A quote in the middle of an unquoted field is literal:
+  'ab"c,d' -> ['ab"c', 'd']
+- Unterminated quote: '"abc' -> ValueError
+- Junk after a closing quote: '"a"b,c' -> ValueError
+- A quoted field that is last on the line: 'x,"q"' -> ['x', 'q'], and
+  one that is first: '"q",x' -> ['q', 'x']
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
 1. Think of a "state machine": at every character you are in one of a
    few STATES, and the state decides what the character means. Useful
-   states: START_OF_FIELD, IN_UNQUOTED, IN_QUOTED, AFTER_CLOSING_QUOTE.
-2. Keep `fields = []` and `current = []` (a list of characters for the
-   field being built); `"".join(current)` when a field ends.
-3. In IN_QUOTED, when you see '"', peek at the NEXT character: if it is
-   also '"', it's an escaped quote (append one '"' and skip ahead two);
-   otherwise the quoted field has ended. A `while i < len(line)` loop
-   with an index makes peeking easy.
-4. When the loop ends: if you are still IN_QUOTED, raise the error;
-   otherwise append the last field (this is why "" gives ['']).
+   states: START_OF_FIELD, IN_UNQUOTED, IN_QUOTED,
+   AFTER_CLOSING_QUOTE. For example, a comma in IN_QUOTED is just a
+   character, but a comma in IN_UNQUOTED ends the field.
+2. Keep `fields = []` and `current = []` (a list of the characters of
+   the field being built). Use `"".join(current)` when a field ends.
+3. In IN_QUOTED, when you see '"', peek at the NEXT character. If it
+   is also '"', it's an escaped quote: append one '"' and skip ahead
+   two characters. Otherwise the quoted field has ended. A
+   `while i < len(line)` loop with an index `i` makes peeking easy.
+4. When the loop ends: if you are still IN_QUOTED, raise the error.
+   Otherwise append the last field (this is why "" gives ['']).
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
@@ -118,13 +155,16 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- Compare your results with `next(csv.reader([line]))` on all your test
-  inputs (a parametrized test is perfect). Where do they differ? (Hint:
-  try '"abc"def' - the csv module is more lenient.)
-- Add a `delimiter` parameter so you can parse tab-separated values.
-- Write the inverse, `format_csv_line(fields)`, quoting only fields that
-  need it (contain a comma, a quote, or leading/trailing spaces) and
-  check that parse_csv_line(format_csv_line(f)) == f.
+- Compare your results with `next(csv.reader([line]))` on all your
+  test inputs (a parametrized test is perfect). Where do they differ?
+  (Hint: try '"abc"def'. The csv module is more lenient: it returns
+  ['abcdef'] instead of raising an error.)
+- Add a `delimiter` parameter (the separator character) so you can
+  parse tab-separated values.
+- Write the inverse, `format_csv_line(fields)`, quoting only the
+  fields that need it (they contain a comma, a quote, or leading or
+  trailing spaces), and check that
+  parse_csv_line(format_csv_line(f)) == f.
 """
 
 

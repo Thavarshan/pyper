@@ -5,58 +5,78 @@ Topics:    str.isalnum(), str.lower(), two pointers, while loops
 Source:    LeetCode #125 "Valid Palindrome"
 
 ========================================================================
-PROBLEM
+YOUR TASK
+========================================================================
+Write `is_palindrome(s)`. It returns True if `s` reads the same forwards
+and backwards once you ignore upper/lower case and skip everything that
+is not a letter or a digit. Otherwise it returns False.
+
+    is_palindrome("A man, a plan, a canal: Panama")  ->  True
+
+========================================================================
+WHAT "PALINDROME" MEANS
 ========================================================================
 A PALINDROME reads the same forwards and backwards, like "racecar" or
-"noon".
+"noon". Letters and digits together are called ALPHANUMERIC characters.
 
-Write `is_palindrome(s)` that returns True if `s` is a palindrome once
-you:
-    - ignore upper/lower case ("A" and "a" count as the same), and
-    - ignore every character that is not a letter or a digit (spaces,
-      punctuation, symbols are skipped entirely).
+To check a sentence, first "clean" it: keep only the alphanumeric
+characters and make them lower-case. Then compare the cleaned text with
+itself backwards:
 
-Such letters-and-digits characters are called ALPHANUMERIC.
+    original:   "A man, a plan, a canal: Panama"
+    cleaned:    "amanaplanacanalpanama"
+    backwards:  "amanaplanacanalpanama"    the same, so True
 
-So "A man, a plan, a canal: Panama" is a palindrome, because after
-cleaning it becomes "amanaplanacanalpanama".
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Treat upper and lower case as the same: "A" matches "a".
+2. Skip every character that is not a letter or a digit. Spaces,
+   punctuation and symbols are ignored entirely.
+3. Treat digits like letters: "12321" -> True, and "0P" -> False
+   (0 and p differ).
+4. Return True for a string with NO alphanumeric characters, including
+   "". The cleaned string is empty, and an empty string reads the same
+   both ways.
+5. Return a real bool: True or False.
+
+You can assume:
+- `s` is a str with 0 to 200_000 characters. That is long, so go
+  through the string a few times at most, not once for every character
+  (no loop inside a loop).
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> is_palindrome("A man, a plan, a canal: Panama")
-    True
+Each line shows a call, then what it should return.
 
-    >>> is_palindrome("race a car")
-    False
+    is_palindrome("A man, a plan, a canal: Panama")  ->  True
+        Cleaned, it is "amanaplanacanalpanama", the same backwards.
 
-    >>> is_palindrome(" ")
-    True
+    is_palindrome("race a car")                      ->  False
+        Cleaned, it is "raceacar". Backwards it is "racaecar".
 
-    >>> is_palindrome("0P")
-    False
+    is_palindrome(" ")                               ->  True
+        Nothing is left after cleaning, and empty counts as a
+        palindrome.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `s` is a str, 0 <= len(s) <= 200_000.
-- A string with NO alphanumeric characters (including "") counts as a
-  palindrome -> True (the cleaned string is empty, and empty reads the
-  same both ways).
-- Digits count: "12321" -> True, "0P" -> False (0 and p differ).
-- Return a real bool.
+    is_palindrome("0P")                              ->  False
+        Cleaned, it is "0p". The 0 and the p differ.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Empty string ""                      -> True
-- Only punctuation/spaces, e.g. ".,! " -> True
-- Single character                     -> True
-- Mixed case "Aa"                      -> True
-- Digits and letters, "0P"             -> False
-- Even-length and odd-length palindromes
-- The famous Panama sentence           -> True
-- A near-palindrome that differs in the middle -> False
+- Empty string: is_palindrome("") -> True
+- Only punctuation and spaces: is_palindrome(".,! ") -> True
+- A single character: is_palindrome("x") -> True
+- Mixed case: is_palindrome("Aa") -> True
+- Digits and letters: is_palindrome("0P") -> False
+- Even length: is_palindrome("abba") -> True, and odd length:
+  is_palindrome("abcba") -> True
+- The famous Panama sentence -> True
+- A near-palindrome that differs in the middle:
+  is_palindrome("abcxba") -> False
 
 ========================================================================
 HINTS (read only if you get stuck)
@@ -75,14 +95,16 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 - `str.isalnum()`, `str.isalpha()`, `str.isdigit()`
 - `str.lower()` (and `str.casefold()` for international text)
-- Generator expressions inside "".join(...)
+- Generator expressions inside "".join(...), such as
+  "".join(ch for ch in s if ch.isalnum())
 - The two-pointer technique with `while` loops
 
 ========================================================================
 STRETCH GOALS
 ========================================================================
 - Implement BOTH approaches (clean-and-reverse, and two pointers) and
-  run the same tests against both with @pytest.mark.parametrize.
+  run the same tests against both with @pytest.mark.parametrize (a
+  pytest feature that runs one test once for each input you list).
 - LeetCode #680 "Valid Palindrome II": return True if the string can be
   a palindrome after deleting AT MOST one character.
 """

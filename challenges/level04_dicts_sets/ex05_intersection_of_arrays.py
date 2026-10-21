@@ -5,80 +5,100 @@ Topics:    set operations, converting between list and set, sorting
 Source:    LeetCode #349 "Intersection of Two Arrays"
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-Given two lists of integers, return the values that appear in BOTH
-lists. This is called the "intersection" (think of the overlapping
-middle of a Venn diagram).
+Write `intersection(nums1, nums2)`. Return the values that appear in
+BOTH lists, each value once, sorted from smallest to largest.
 
-Rules:
-- Each value appears in the result at most ONCE, even if it is repeated
-  in the inputs. ([1, 2, 2, 1] and [2, 2] -> [2], not [2, 2].)
-- LeetCode allows any order; to make tests deterministic (predictable),
-  YOUR function must return the values sorted in ascending order.
-- Do not modify either input list.
+    intersection([4, 9, 5], [9, 4, 9, 8, 4])  ->  [4, 9]
+
+The values found in both are called the "intersection". Think of the
+overlapping middle of a Venn diagram:
+
+    nums1 has:   4, 9, 5
+    nums2 has:   9, 4, 8
+    in both:     4, 9
+
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Return a `list[int]`, NOT a set.
+2. Include each value at most ONCE, even if it is repeated in the
+   inputs: [1, 2, 2, 1] and [2, 2] give [2], not [2, 2].
+3. Sort the values in ascending order (smallest to largest). LeetCode
+   allows any order, but this version sorts so that tests are
+   deterministic (they always expect the same exact answer).
+4. Not change (mutate) either input list.
+
+You can assume:
+- `nums1` and `nums2` are lists of ints. Either may be empty, and
+  values may be negative.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> intersection([1, 2, 2, 1], [2, 2])
-    [2]
+Each line shows a call, then what it should return.
 
-    >>> intersection([4, 9, 5], [9, 4, 9, 8, 4])
-    [4, 9]
+    intersection([1, 2, 2, 1], [2, 2])        ->  [2]
+        2 is the only value in both lists. It appears once in the
+        result.
 
-    >>> intersection([1, 2, 3], [4, 5, 6])
-    []
+    intersection([4, 9, 5], [9, 4, 9, 8, 4])  ->  [4, 9]
+        4 and 9 are in both lists, sorted smallest first.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `nums1` and `nums2` are lists of ints (either may be empty); values
-  may be negative.
-- Return a `list[int]` (NOT a set), sorted ascending, with no duplicates.
-- Neither input is modified.
+    intersection([1, 2, 3], [4, 5, 6])        ->  []
+        Nothing in common.
 
 ========================================================================
 COMPLEXITY TARGET
 ========================================================================
-- Time O(n + m + k log k), space O(n + m): building two sets is linear,
-  and only the k common values need sorting.
+- O(n + m + k log k) time, where n and m are the two list lengths and k
+  is the number of common values. Building the two sets is one pass
+  over each list (n + m), and only the k common values need sorting
+  (about k log k steps).
+- O(n + m) space: the two sets can hold every value from both lists.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- One or both lists empty      -> []
-- No common values             -> []
-- Identical lists              -> sorted unique values of that list
-- Heavy duplication on both sides -> each common value once
-- Negative numbers [-1, -2, 3] & [-2, 3, 3] -> [-2, 3]
-- Result is a list, not a set: `assert isinstance(result, list)`
-- Inputs unchanged after the call
+- One or both lists empty: ([], [1, 2]) and ([], []) -> []
+- No common values: ([1, 2, 3], [4, 5, 6]) -> []
+- Identical lists: ([3, 1, 3, 2], [3, 1, 3, 2]) -> [1, 2, 3]
+  (the sorted unique values of that list)
+- Heavy duplication on both sides: ([1, 1, 1, 2], [1, 1, 2, 2])
+  -> [1, 2] (each common value once)
+- Negative numbers: ([-1, -2, 3], [-2, 3, 3]) -> [-2, 3]
+- The result is a list, not a set: `assert isinstance(result, list)`
+- Both inputs are unchanged after the call
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
 1. `set(nums1)` removes duplicates from the first list.
 2. Sets support `&` for intersection: `{1, 2, 3} & {2, 3, 4} == {2, 3}`.
-   (Or the method form: `a.intersection(b)`.)
+   (Or use the method form: `a.intersection(b)`.)
 3. `sorted(some_set)` returns a NEW sorted list.
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
 ========================================================================
-- Set operators: `&` (intersection), `|` (union), `-` (difference),
-  `^` (symmetric difference)
-- `sorted()` returns a list from any iterable
+- Set operators: `&` (intersection: in both), `|` (union: in either),
+  `-` (difference: in the first but not the second), `^` (symmetric
+  difference: in one or the other, but not both)
+- `sorted()` returns a list from any iterable (anything you can loop
+  over)
 - Why sets have no guaranteed order (and why we sort for tests)
 
 ========================================================================
 STRETCH GOALS
 ========================================================================
 - Solve it without the `&` operator, using a loop and one set.
-- LeetCode #350 "Intersection of Two Arrays II": keep duplicates as many
-  times as they appear in both (hint: `collections.Counter` supports `&`).
+- LeetCode #350 "Intersection of Two Arrays II": keep duplicates as
+  many times as they appear in both (hint: `collections.Counter`
+  supports `&`).
 - `union(nums1, nums2)` and `difference(nums1, nums2)` with the same
-  sorted-unique rules.
+  sorted, unique rules.
 """
 
 

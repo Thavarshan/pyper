@@ -5,50 +5,75 @@ Topics:    loops, conditionals, the modulo operator (%), building lists
 Source:    Classic interview warm-up (also LeetCode #412 "Fizz Buzz")
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-Write a function that takes a whole number `n` and returns a list of
-strings for every number from 1 up to and including `n`, following
-these rules:
+Write `fizzbuzz(n)`. It returns a list of strings, one for each number
+from 1 up to and including `n`. Multiples of 3 become "Fizz", multiples
+of 5 become "Buzz", multiples of both become "FizzBuzz", and every
+other number becomes itself as a string.
 
-    - If the number is divisible by 3 AND by 5  -> "FizzBuzz"
-    - If the number is divisible by 3 only      -> "Fizz"
-    - If the number is divisible by 5 only      -> "Buzz"
-    - Otherwise                                 -> the number as a string,
-                                                   e.g. 7 -> "7"
+    fizzbuzz(5)  ->  ['1', '2', 'Fizz', '4', 'Buzz']
 
-"Divisible by" means the remainder is zero. In Python the remainder
-operator is `%`, so `9 % 3 == 0` is True and `10 % 3 == 0` is False.
+========================================================================
+WHAT "DIVISIBLE BY" MEANS
+========================================================================
+A number is divisible by 3 when dividing it by 3 leaves no remainder.
+Python's remainder operator is `%`:
+
+    9 % 3    is 0, so 9 is divisible by 3
+    10 % 3   is 1, so 10 is not
+
+So `9 % 3 == 0` is True and `10 % 3 == 0` is False.
+
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Return a list with one string for each number from 1 to `n`
+   (including `n`), in order. So the list has exactly `n` items.
+2. Use "FizzBuzz" for a number divisible by 3 AND by 5.
+3. Use "Fizz" for a number divisible by 3 only.
+4. Use "Buzz" for a number divisible by 5 only.
+5. Use the number itself as a string for any other number: 7 becomes
+   "7". Every item is a str, never an int.
+6. Return an empty list [] when `n` is 0.
+7. Raise ValueError when `n` is negative (it makes no sense to count up
+   to a negative number).
+
+You can assume:
+- `n` is an int.
+- For normal input, `n` is between 0 and 10_000.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> fizzbuzz(5)
-    ['1', '2', 'Fizz', '4', 'Buzz']
+Each line shows a call, then what it should return.
 
-    >>> fizzbuzz(15)[-1]
-    'FizzBuzz'
+    fizzbuzz(5)       ->  ['1', '2', 'Fizz', '4', 'Buzz']
+        3 is divisible by 3 and 5 is divisible by 5. The rest stay as
+        numbers, written as strings.
 
-    >>> fizzbuzz(1)
-    ['1']
+    fizzbuzz(15)[-1]  ->  'FizzBuzz'
+        [-1] picks the last item. 15 is divisible by both 3 and 5.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `n` is an int.
-- 0 <= n <= 10_000 for normal input.
-- If `n` is negative, raise a `ValueError` (it makes no sense to count
-  up to a negative number).
+    fizzbuzz(1)       ->  ['1']
+        Just the number 1, as a string.
+
+    fizzbuzz(-1)      ->  raises ValueError
+        You cannot count up to a negative number.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- n = 0         -> an empty list []
-- n = 1         -> ['1']
-- n = 3, 5, 15  -> the last element is 'Fizz', 'Buzz', 'FizzBuzz'
-- The length of the result always equals n
-- Every element is a str (not an int!)
-- n = -1        -> raises ValueError
+- fizzbuzz(0)       -> []
+- fizzbuzz(1)       -> ['1']
+- fizzbuzz(3)[-1]   -> 'Fizz'
+- fizzbuzz(5)[-1]   -> 'Buzz'
+- fizzbuzz(15)[-1]  -> 'FizzBuzz'
+- The length always equals n: len(fizzbuzz(100)) -> 100
+- Every item is a str, not an int: fizzbuzz(2) -> ['1', '2']
+  (not [1, 2])
+- fizzbuzz(-1)      -> raises ValueError
 
 ========================================================================
 HINTS (read only if you get stuck)
@@ -65,7 +90,7 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 - `for x in range(...)` loops
 - `if / elif / else` chains and why their order matters
-- The `%` (modulo) operator
+- The `%` (modulo, the remainder) operator
 - Creating a list with `[]` and adding to it with `.append()`
 - Raising exceptions: `raise ValueError("message")`
 - Type hints: `list[str]` means "a list whose items are strings"
@@ -73,9 +98,10 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- Rewrite your solution as a single list comprehension.
+- Rewrite your solution as a single list comprehension (a one-line way
+  to build a list: [... for i in range(...)]).
 - Generalise it: `fizzbuzz_custom(n, rules)` where `rules` is a dict like
-  {3: "Fizz", 5: "Buzz", 7: "Bazz"} so 105 -> "FizzBuzzBazz".
+  {3: "Fizz", 5: "Buzz", 7: "Bazz"}, so 105 -> "FizzBuzzBazz".
 """
 
 

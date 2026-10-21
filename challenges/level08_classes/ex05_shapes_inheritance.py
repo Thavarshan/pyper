@@ -5,116 +5,145 @@ Topics:    inheritance, abc.ABC, @abstractmethod, super(), polymorphism
 Source:    Classic OOP exercise
 
 ========================================================================
-PROBLEM
+YOUR TASK
+========================================================================
+Finish a small family of shape classes that all share one abstract
+parent, `Shape` (provided). Fill in:
+
+- `Shape.describe()`: a text summary, written ONCE, used by all shapes
+- `Circle(radius)`: `__init__`, `area()`, `perimeter()`
+- `Square(side)`: `__init__`, `area()`, `perimeter()`
+- `Triangle(a, b, c)`: `__init__`, `area()`, `perimeter()`
+- `total_area(shapes)`: a function that adds up the areas of many shapes
+
+    Square(2).describe()
+    # -> 'Square with area 4.00 and perimeter 8.00'
+
+========================================================================
+BACKGROUND: INHERITANCE, ABSTRACT CLASSES, POLYMORPHISM
 ========================================================================
 INHERITANCE lets one class (the SUBCLASS or "child") reuse and extend
-another (the BASE CLASS or "parent"). `class Circle(Shape):` means
-"a Circle is a kind of Shape" - it gets all of Shape's methods for free
-and can add or override its own.
+another (the BASE CLASS or "parent"). `class Circle(Shape):` means "a
+Circle is a kind of Shape". It gets all of Shape's methods for free and
+can add or override (replace) its own.
 
 An ABSTRACT BASE CLASS (ABC) is a parent that describes WHAT every
 subclass must be able to do, without saying HOW. Methods marked
-`@abstractmethod` have no real implementation in the parent; any
-subclass that forgets to implement them cannot be instantiated -
-Python raises TypeError when you try. You also can't create a plain
-`Shape()` directly.
+`@abstractmethod` have no real code in the parent. A subclass that
+forgets to write them cannot be created: Python raises TypeError when
+you try. You also can't create a plain `Shape()` directly.
 
-POLYMORPHISM means code can treat different subclasses the same way:
-`total_area(shapes)` just calls `shape.area()` on each item and doesn't
-care whether it's a Circle, Square or Triangle.
+POLYMORPHISM means code can treat different subclasses the same way.
+`total_area(shapes)` just calls `shape.area()` on each item. It doesn't
+care whether the item is a Circle, a Square or a Triangle.
 
-Build:
+HERON'S FORMULA gives a triangle's area from its three sides:
 
-    Shape (abstract, provided below)
-        .area()         abstract - subclasses must implement
-        .perimeter()    abstract - subclasses must implement
-        .describe()     CONCRETE (implemented once, in Shape) returning:
-                            "<ClassName> with area <A> and perimeter <P>"
-                        with A and P rounded to 2 decimal places, i.e.
-                        f"{type(self).__name__} with area {a:.2f} and perimeter {p:.2f}"
-                        e.g. "Square with area 4.00 and perimeter 8.00"
+    s    = (a + b + c) / 2                 (the "semi-perimeter")
+    area = sqrt(s * (s-a) * (s-b) * (s-c))
 
-    Circle(radius)
-        area = pi * r**2, perimeter (circumference) = 2 * pi * r
-        Use math.pi.
+    For sides 3, 4, 5:  s = 6
+                        area = sqrt(6 * 3 * 2 * 1) = sqrt(36) = 6
 
-    Square(side)
-        area = side**2, perimeter = 4 * side
+THE TRIANGLE INEQUALITY: three lengths only make a triangle if each
+side is strictly less than the sum of the other two. 1, 1, 5 fails
+(5 is not less than 1 + 1), so the two short sides can't meet. 1, 2, 3
+fails too (3 is not LESS than 1 + 2): the sides would lie flat, with
+zero area. Such a flat triangle is called "degenerate".
 
-    Triangle(a, b, c)   (the three side lengths)
-        perimeter = a + b + c
-        area via HERON'S FORMULA:
-            s = (a + b + c) / 2          (the "semi-perimeter")
-            area = sqrt(s * (s-a) * (s-b) * (s-c))
-        The TRIANGLE INEQUALITY must hold: each side must be strictly
-        less than the sum of the other two (a < b + c, b < a + c,
-        c < a + b). Otherwise the sides can't form a triangle ->
-        ValueError. (Sides like 1, 2, 3 are "degenerate" - flat, zero
-        area - and are also rejected.)
+========================================================================
+THE RULES
+========================================================================
+Your code must:
 
-    total_area(shapes)
-        Return the sum of area() for every shape in the iterable.
-        Empty iterable -> 0.
+Shape (abstract, provided)
+1. Keep Shape abstract: `Shape()` raises TypeError. The stub already
+   does this, thanks to ABC + @abstractmethod.
+2. `describe()` is written ONCE in Shape and inherited, not copied into
+   each subclass. It returns exactly
+   f"{type(self).__name__} with area {a:.2f} and perimeter {p:.2f}"
+   where a and p are the shape's area and perimeter. `:.2f` rounds to
+   2 decimal places: "Square with area 4.00 and perimeter 8.00".
 
-Validation for every subclass: each dimension must be an int or float
-(not bool) -> else TypeError; and > 0 -> else ValueError.
+Circle(radius)
+3. area = pi * radius**2, perimeter (the circumference) =
+   2 * pi * radius. Use math.pi.
 
-Each subclass stores its dimensions as public attributes with the same
-names as the constructor parameters: `circle.radius`, `square.side`,
-`triangle.a`, `triangle.b`, `triangle.c`.
+Square(side)
+4. area = side**2, perimeter = 4 * side.
+
+Triangle(a, b, c), the three side lengths
+5. perimeter = a + b + c, area by Heron's formula (see above).
+6. Raise `ValueError` if the sides break the triangle inequality:
+   you need a < b + c, b < a + c AND c < a + b. Degenerate (flat)
+   triangles such as 1, 2, 3 are rejected too.
+
+Every subclass
+7. Raise `TypeError` if a dimension is not an int or float. `True`
+   and `False` count as NOT numbers (bool is a subclass of int in
+   Python, so check for it explicitly).
+8. Raise `ValueError` if a dimension is 0 or less.
+9. Store the dimensions as public attributes named like the
+   constructor parameters: `circle.radius`, `square.side`,
+   `triangle.a`, `triangle.b`, `triangle.c`.
+
+total_area(shapes)
+10. Return the sum of area() for every shape in the iterable (anything
+    you can loop over). An empty iterable gives 0.
+
+General
+11. Use only the standard library (math).
+
+You can assume:
+- Results are floats. Compare them in tests with pytest.approx.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> Square(2).describe()
-    'Square with area 4.00 and perimeter 8.00'
+Each line shows a call, then what it should return.
 
-    >>> round(Circle(1).area(), 5)
-    3.14159
+    Square(2).describe()  ->  'Square with area 4.00 and perimeter 8.00'
+        2 * 2 = 4 and 4 * 2 = 8, shown with 2 decimal places.
 
-    >>> Triangle(3, 4, 5).area()
-    6.0
+    round(Circle(1).area(), 5)  ->  3.14159
+        pi * 1**2 is pi.
 
-    >>> total_area([Square(2), Triangle(3, 4, 5)])
-    10.0
+    Triangle(3, 4, 5).area()  ->  6.0
+        Heron's formula, worked through above.
 
-    >>> Shape()
-    Traceback (most recent call last):
-        ...
-    TypeError: Can't instantiate abstract class Shape ...
+    total_area([Square(2), Triangle(3, 4, 5)])  ->  10.0
+        4 + 6.0.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- Shape must stay abstract: `Shape()` raises TypeError (this is
-  already true in the stub thanks to ABC + @abstractmethod).
-- describe() is written ONCE in Shape and inherited, not copied into
-  each subclass.
-- Floats: compare with pytest.approx.
-- Only stdlib (math).
+    Shape()  ->  raises TypeError
+        Python says "Can't instantiate abstract class Shape ...".
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Shape() -> TypeError
-- A subclass defined in your test that doesn't implement area() can't
-  be instantiated (TypeError)
-- Circle(1) area ~ pi, perimeter ~ 2*pi
-- Square(0), Circle(-1) -> ValueError; Square("2") -> TypeError
-- Triangle(3, 4, 5) area == 6, perimeter == 12
-- Triangle(1, 2, 3) (degenerate) and Triangle(1, 1, 5) -> ValueError
-- describe() uses the right class name for each subclass
+- Shape() -> raises TypeError
+- A subclass, defined in your test, that doesn't write area() can't be
+  created: calling it raises TypeError
+- Circle(1): area == pytest.approx(math.pi),
+  perimeter == pytest.approx(2 * math.pi)
+- Square(0) and Circle(-1) -> raise ValueError
+- Square("2") -> raises TypeError
+- Triangle(3, 4, 5): area == 6, perimeter == 12
+- Triangle(1, 2, 3) (degenerate) and Triangle(1, 1, 5) -> raise
+  ValueError
+- describe() uses the right class name for each subclass:
+  Circle(1).describe() -> 'Circle with area 3.14 and perimeter 6.28'
 - isinstance(Circle(1), Shape) is True
-- total_area([]) == 0; total_area of a mix of shapes
+- total_area([]) == 0, and total_area of a mix of shapes is the sum of
+  their areas
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
-1. describe() can call self.area() and self.perimeter() - Python will
-   run the SUBCLASS's version. That's polymorphism in action.
+1. describe() can call self.area() and self.perimeter(). Python runs
+   the SUBCLASS's version. That's polymorphism in action.
 2. `type(self).__name__` gives the class name as a string ("Circle").
-3. Put the shared number validation in a module-level helper function
-   (or a method on Shape) so the subclasses don't repeat it.
+3. Put the shared number checks in a module-level helper function (or
+   a method on Shape) so the subclasses don't repeat them.
 4. For Heron's formula use `math.sqrt`.
 5. total_area: `sum(shape.area() for shape in shapes)`.
 
@@ -123,9 +152,11 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 - Inheritance and method overriding
 - `abc.ABC` and `@abstractmethod`
-- Polymorphism / "duck typing"
+- Polymorphism and "duck typing" (if it has an area() method, you can
+  use it as a shape)
 - `type(obj).__name__`, `isinstance`, `issubclass`
-- `super().__init__()` (useful if Shape grows its own __init__)
+- `super().__init__()` (calls the parent's __init__, useful if Shape
+  grows its own)
 - math.pi, math.sqrt
 
 ========================================================================
@@ -133,9 +164,10 @@ STRETCH GOALS
 ========================================================================
 - Add Rectangle(width, height) and make Square a subclass of it.
   Discuss: is that a good idea? (Look up the "Liskov substitution
-  principle".)
-- Add `__repr__` to each shape, e.g. "Circle(radius=1)".
-- Add `__lt__` so shapes sort by area: sorted([...]).
+  principle": a subclass should work anywhere its parent does.)
+- Add `__repr__` to each shape, such as "Circle(radius=1)".
+- Add `__lt__` (the `<` operator) so shapes sort by area with
+  sorted([...]).
 - Add a `scale(factor)` abstract method returning a new, scaled shape.
 """
 

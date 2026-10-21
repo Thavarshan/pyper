@@ -5,14 +5,22 @@ Topics:    linked lists, Floyd's tortoise and hare, fast/slow pointers
 Source:    LeetCode #141 "Linked List Cycle"
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-Given the `head` of a singly linked list, return True if the list
-contains a CYCLE, otherwise False.
+Write `has_cycle(head)`. It gets the head of a linked list and returns
+True if the list contains a CYCLE (a loop of nodes), otherwise False.
 
-A cycle means that following `.next` pointers never reaches None -
-instead some node's `.next` points back to an earlier node, so you would
-loop forever:
+    has_cycle(list_to_linked([1, 2, 3]))  ->  False
+
+========================================================================
+WHAT A "CYCLE" IS
+========================================================================
+A linked list is a chain of `ListNode` objects. Each node has a `.val`
+and a `.next` (the next node, or None at the end).
+
+In a normal list, following `.next` always reaches None. In a list
+with a cycle it never does. Instead, some node's `.next` points back
+to an earlier node, so you would loop forever:
 
     [3] -> [2] -> [0] -> [-4]
             ^              |
@@ -20,55 +28,74 @@ loop forever:
 
     [1] -> [2] -> None                                          -> False
 
-Important: two nodes with the same VALUE are not a cycle. A cycle is
-about the same node OBJECT being reached twice (compare with `is`).
+Important: two nodes with the same VALUE are not a cycle. A cycle
+means the same node OBJECT is reached twice (compare with `is`).
 
-FLOYD'S TORTOISE AND HARE: move two pointers through the list. The
-"tortoise" (slow) moves 1 step at a time, the "hare" (fast) moves 2
-steps. If there is no cycle, the hare falls off the end (reaches None).
-If there IS a cycle, both end up running around the loop, and because
-the hare gains one step per move, it must eventually land on the exact
-same node as the tortoise. Like two runners on a circular track - the
-faster one always laps the slower one.
+========================================================================
+FLOYD'S TORTOISE AND HARE
+========================================================================
+Move two pointers through the list. The "tortoise" (slow) moves 1 step
+at a time. The "hare" (fast) moves 2 steps.
 
-Your main solution should use Floyd's algorithm (O(1) extra space).
+    - No cycle: the hare falls off the end (reaches None).
+    - A cycle: both end up running around the loop. The hare gains
+      one step on each move, so it must eventually land on exactly the
+      same node as the tortoise.
+
+It's like two runners on a circular track: the faster one always laps
+the slower one.
+
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Return True if following `.next` ever revisits a node, otherwise
+   False.
+2. Return False for an empty list (head is None).
+3. Not change the list (do not change any `.val` or `.next`).
+4. Use Floyd's algorithm in your main solution, so it uses only O(1)
+   extra space (a few variables, nothing that grows with the list).
+
+You can assume:
+- The list has between 0 and 10_000 nodes.
+- Node values are ints. Duplicates are allowed, and they do not mean
+  there is a cycle.
+
+Warning for your tests: never call `linked_to_list` on a list that
+might have a cycle. It would loop forever.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> from challenges.common.structures import list_to_linked
-    >>> has_cycle(list_to_linked([1, 2, 3]))
-    False
+Each line shows a call, then what it should return. The helper comes
+from `challenges.common.structures`.
 
-    >>> head = list_to_linked([3, 2, 0, -4])
-    >>> head.next.next.next.next = head.next     # -4 -> 2
-    >>> has_cycle(head)
-    True
+    has_cycle(list_to_linked([1, 2, 3]))  ->  False
+        1 -> 2 -> 3 -> None: the end is reached.
 
-    >>> has_cycle(None)
-    False
+    has_cycle(None)  ->  False
+        An empty list has no cycle.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- The list has between 0 and 10_000 nodes.
-- Node values are ints (duplicates allowed - they do not imply a cycle).
-- Empty list (None) -> False.
-- Do not modify the list (no changing .val or .next).
-- Never call `linked_to_list` on a list that might have a cycle: it would
-  loop forever.
+Building a cycle by hand, then checking it:
+
+    head = list_to_linked([3, 2, 0, -4])
+    head.next.next.next.next = head.next   # -4 now points back at 2
+    has_cycle(head)                        # -> True
 
 ========================================================================
 COMPLEXITY TARGET
 ========================================================================
-- Time:  O(n)
-- Space: O(1) with Floyd's algorithm (O(n) if you use a set of seen nodes).
+- Time:  O(n): the pointers take a number of steps proportional to
+  the length of the list.
+- Space: O(1) with Floyd's algorithm: just two pointers. (It is O(n)
+  if you use a set of seen nodes, because the set grows with the
+  list.)
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Empty list -> False
-- Single node, no cycle -> False
+- Empty list: has_cycle(None) -> False
+- Single node, no cycle: has_cycle(list_to_linked([1])) -> False
 - Single node pointing to itself (node.next = node) -> True
 - Two nodes pointing to each other -> True
 - Cycle back to the head (tail.next = head) -> True
@@ -77,24 +104,28 @@ EDGE CASES TO TEST
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
-1. Simplest idea first: remember every node you have visited in a `set`.
-   If you see one again -> cycle. (ListNode is a dataclass, which makes it
-   unhashable by default, so store `id(node)` in the set instead.)
-2. Now do it without the set: two pointers, `slow` and `fast`, both start
-   at head.
+1. Simplest idea first: remember every node you have visited in a
+   `set`. If you see one again, there is a cycle. ListNode is hashable
+   (it can go in a set): it is a dataclass made with `eq=False`, so
+   nodes compare and hash by identity, not by value. You can store the
+   nodes themselves, or `id(node)`.
+2. Now do it without the set: two pointers, `slow` and `fast`, both
+   start at head.
 3. Each step: slow = slow.next, fast = fast.next.next.
-4. Before moving fast two steps, make sure `fast` and `fast.next` are not
-   None - if either is None there is no cycle.
-5. If at any point `slow is fast` -> return True.
+4. Before moving fast two steps, make sure `fast` and `fast.next` are
+   not None. If either is None, there is no cycle.
+5. If at any point `slow is fast`, return True.
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
 ========================================================================
-- Identity (`is`) vs equality (`==`) - essential here!
+- Identity (`is`) vs equality (`==`): essential here!
 - `id(obj)` gives a unique integer for a live object
-- Why `@dataclass` objects are unhashable by default (eq=True sets
-  __hash__ to None)
-- `while fast and fast.next:` - short-circuit evaluation prevents errors
+- Why `@dataclass` objects are unhashable by default (the default
+  eq=True sets __hash__ to None), and why ListNode uses eq=False to
+  keep them hashable
+- `while fast and fast.next:` short-circuit evaluation (the right side
+  is only checked when the left side is truthy) prevents errors
 
 ========================================================================
 STRETCH GOALS

@@ -5,83 +5,107 @@ Topics:    iterating over dict items, hashable keys, grouping
 Source:    Classic dict exercise
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-"Inverting" a dict means swapping its keys and values, so that what
-used to be a value becomes a key and points back to the old key.
+Write two functions that swap a dict's keys and values:
 
-    {"a": 1, "b": 2}   inverted is   {1: "a", 2: "b"}
+- `invert(d)` returns a NEW dict with keys and values swapped. It
+  raises ValueError if two keys share the same value.
+- `invert_grouped(d)` returns a NEW dict mapping each value to a LIST
+  of all the keys that had that value.
 
-Part 1 - `invert(d)`
+    invert({"a": 1, "b": 2})  ->  {1: 'a', 2: 'b'}
 
-Return a NEW dict with keys and values swapped. If two keys share the
-same value, a simple swap is impossible (a dict key can only map to ONE
-value), so raise `ValueError` in that case. The resulting dict's keys
-must appear in the same order as the corresponding entries in `d`.
+========================================================================
+WHAT "INVERTING" MEANS
+========================================================================
+Inverting a dict swaps its keys and values. What used to be a value
+becomes a key, and it points back to the old key:
 
-Part 2 - `invert_grouped(d)`
+    {"a": 1, "b": 2}    inverted is    {1: "a", 2: "b"}
 
-Handle duplicates gracefully instead: return a dict mapping each value
-to a LIST of all the keys that had that value.
-- The result's keys appear in the order each value was FIRST seen in `d`.
-- Each list holds the original keys in the order they appear in `d`.
-- Every value is wrapped in a list, even if only one key had it.
+Trouble starts when two keys share a value:
 
-Both functions must leave the input dict unchanged.
+    {"x": 1, "y": 1}    would need     {1: "x", 1: "y"}
 
-A reminder about "hashable": only immutable things (str, int, float,
-tuple, bool, None...) can be dict keys. Since values become keys here,
-the input's values must be hashable. If a value is a list (unhashable),
-Python itself will raise `TypeError` when you try to use it as a key -
-you do not need to check for that yourself.
+A dict key can only map to ONE value, so a simple swap is impossible.
+`invert` raises an error in that case. `invert_grouped` collects all
+the keys into a list instead: {1: ["x", "y"]}.
+
+Only HASHABLE things can be dict keys. These are the immutable
+(unchangeable) types: str, int, float, tuple, bool, None and so on.
+Since values become keys here, the input's values must be hashable. If
+a value is a list (unhashable), Python itself raises TypeError when you
+try to use it as a key. You do not need to check for that yourself.
+
+========================================================================
+THE RULES
+========================================================================
+Your functions must:
+1. Both: return a NEW dict, and never change (mutate) `d`.
+2. invert: map each original value to its original key.
+3. invert: raise ValueError if any value appears more than once. The
+   message wording is up to you, but naming the value is helpful.
+4. invert: put the result's keys in the same order as the
+   corresponding entries in `d`.
+5. invert_grouped: map each value to a list of ALL the keys that had
+   it, in the order those keys appear in `d`.
+6. invert_grouped: wrap every value's keys in a list, even if only one
+   key had that value.
+7. invert_grouped: order the result's keys by when each value was
+   FIRST seen in `d`.
+8. invert_grouped: never raise for duplicate values.
+
+You can assume:
+- `d` is a dict whose values are hashable.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> invert({"a": 1, "b": 2, "c": 3})
-    {1: 'a', 2: 'b', 3: 'c'}
+Each line shows a call, then what it should return.
 
-    >>> invert({"x": 1, "y": 1})
-    Traceback (most recent call last):
-    ...
-    ValueError: duplicate value 1 for keys 'x' and 'y'
+    invert({"a": 1, "b": 2, "c": 3})  ->  {1: 'a', 2: 'b', 3: 'c'}
+        Each value becomes a key that points back to its old key.
 
-    >>> invert_grouped({"apple": "fruit", "carrot": "veg", "banana": "fruit"})
-    {'fruit': ['apple', 'banana'], 'veg': ['carrot']}
+    invert({"x": 1, "y": 1})          ->  raises ValueError
+        Both keys have the value 1. The message is up to you, for
+        example: duplicate value 1 for keys 'x' and 'y'
 
-    >>> invert_grouped({})
-    {}
+    invert_grouped({"apple": "fruit", "carrot": "veg", "banana": "fruit"})
+        ->  {'fruit': ['apple', 'banana'], 'veg': ['carrot']}
+        "fruit" is seen first, so it is the first key. Its list keeps
+        'apple' before 'banana', as in the input. "veg" only had one
+        key, but it still gets a list.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `d` is a dict whose values are hashable.
-- Return NEW dicts; never modify `d`.
-- `invert` raises `ValueError` on any duplicate value (the message
-  wording is up to you, but naming the value is helpful).
-- `invert_grouped` never raises for duplicates.
+    invert_grouped({})                ->  {}
+        Nothing to invert.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Empty dict                           -> {} for both functions
-- One entry {"k": "v"}                 -> {"v": "k"} / {"v": ["k"]}
-- Duplicate values                     -> invert raises ValueError
-- Order of keys in results (compare `list(result)` to an expected list,
-  because `==` on dicts ignores order!)
-- Mixed value types {"a": 1, "b": "1"} -> 1 and "1" are DIFFERENT keys
-- Unhashable value {"a": [1]}          -> TypeError (raised by Python)
+- Empty dict -> {} for both functions
+- One entry: invert({"k": "v"}) -> {'v': 'k'} and
+  invert_grouped({"k": "v"}) -> {'v': ['k']}
+- Duplicate values: invert({"x": 1, "y": 1}) -> raises ValueError
+- Order of keys in results: compare `list(result)` to an expected
+  list, because `==` on dicts ignores order!
+  For example, list(invert({"b": 2, "a": 1})) -> [2, 1]
+- Mixed value types: invert({"a": 1, "b": "1"}) -> {1: 'a', '1': 'b'}
+  (1 and "1" are DIFFERENT keys)
+- Unhashable value: invert({"a": [1]}) -> raises TypeError (raised by
+  Python itself)
 - The input dict is unchanged afterwards
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
-1. `for key, value in d.items():` walks the dict in insertion order.
+1. `for key, value in d.items():` walks the dict in insertion order
+   (the order the keys were added).
 2. For `invert`, before storing `result[value] = key`, check
    `if value in result:` and raise.
 3. For `invert_grouped`, `result.setdefault(value, []).append(key)`
    creates the list the first time and appends every time.
-4. `collections.defaultdict(list)` is another way - but convert it back
+4. `collections.defaultdict(list)` is another way, but convert it back
    to a plain `dict` before returning.
 5. A dict comprehension `{v: k for k, v in d.items()}` inverts in one
    line, but silently drops duplicates. Why?
@@ -93,14 +117,17 @@ PYTHON CONCEPTS TO LEARN
 - Hashability and why lists can't be keys
 - dict.setdefault() and collections.defaultdict
 - Dict comprehensions
-- Dicts preserve insertion order (and `==` ignores it)
+- Dicts keep insertion order (and `==` ignores it)
 
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- `invert_grouped` that returns `dict[value, set[keys]]` instead.
+- An `invert_grouped` that returns `dict[value, set[keys]]` instead
+  (a set of keys for each value, not a list).
 - Prove `invert(invert(d)) == d` for any dict with unique values.
-- Add `on_duplicate="error" | "first" | "last"` to `invert`.
+- Add an `on_duplicate="error" | "first" | "last"` parameter to
+  `invert`. It chooses what happens on a duplicate value: raise an
+  error, keep the first key, or keep the last key.
 """
 
 from collections.abc import Hashable

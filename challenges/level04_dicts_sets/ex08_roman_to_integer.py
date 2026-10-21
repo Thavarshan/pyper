@@ -5,74 +5,91 @@ Topics:    dicts as lookup tables, looking ahead in a loop, validation
 Source:    LeetCode #13 "Roman to Integer"
 
 ========================================================================
-PROBLEM
+YOUR TASK
+========================================================================
+Write `roman_to_int(s)`. It converts a Roman numeral string to an int.
+
+    roman_to_int("MCMXCIV")  ->  1994
+
+========================================================================
+HOW ROMAN NUMERALS WORK
 ========================================================================
 Roman numerals are written with seven letters:
 
     I = 1    V = 5    X = 10    L = 50    C = 100    D = 500    M = 1000
 
-Normally the letters are written from largest to smallest, left to
-right, and you just add them up:  "VIII" = 5 + 1 + 1 + 1 = 8,
-"LX" = 50 + 10 = 60.
+Normally the letters go from largest to smallest, left to right, and
+you just add them up:
 
-The twist is "subtractive notation": when a SMALLER letter comes
+    "VIII"  =  5 + 1 + 1 + 1  =  8
+    "LX"    =  50 + 10        =  60
+
+The twist is "subtractive notation". When a SMALLER letter comes
 directly before a LARGER one, the smaller one is subtracted instead of
 added. There are six such pairs:
 
     IV = 4    IX = 9    XL = 40    XC = 90    CD = 400    CM = 900
 
-So "MCMXCIV" = M(1000) + CM(900) + XC(90) + IV(4) = 1994.
+So "MCMXCIV" breaks down like this:
 
-Write `roman_to_int(s)` that converts a Roman numeral string to an int.
+    M       CM     XC     IV
+    1000  + 900  + 90   + 4     =  1994
 
-Validation for this challenge:
-- `s` must be non-empty and contain ONLY the uppercase letters
-  I V X L C D M. Otherwise raise `ValueError` (that covers "", "abc",
-  lowercase "iv", spaces, digits...).
-- You do NOT need to reject "badly formed" numerals made of valid
-  letters (like "IIII" or "IC"); just apply the add/subtract rule. That
-  is a stretch goal.
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Return the numeral's value as an int, using the add/subtract rule
+   above.
+2. Raise ValueError if `s` is empty.
+3. Raise ValueError if `s` contains any character other than the
+   uppercase letters I V X L C D M. This is case-sensitive, and covers
+   "abc", lowercase "iv", spaces, digits and so on.
+4. NOT reject "badly formed" numerals made of valid letters (like
+   "IIII" or "IC"). Just apply the add/subtract rule, so "IIII" gives 4
+   and "IC" gives 99. Rejecting them is a stretch goal.
+
+You can assume:
+- `s` is a str.
+- For valid numerals the result is between 1 and 3999.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> roman_to_int("III")
-    3
+Each line shows a call, then what it should return.
 
-    >>> roman_to_int("LVIII")
-    58
+    roman_to_int("III")      ->  3
+        1 + 1 + 1.
 
-    >>> roman_to_int("MCMXCIV")
-    1994
+    roman_to_int("LVIII")    ->  58
+        50 + 5 + 1 + 1 + 1. No letter is smaller than the one after
+        it, so just add.
 
-    >>> roman_to_int("XIZ")
-    Traceback (most recent call last):
-    ...
-    ValueError: invalid Roman numeral character 'Z'
+    roman_to_int("MCMXCIV")  ->  1994
+        1000 + 900 (CM) + 90 (XC) + 4 (IV).
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `s` is a str. For valid numerals the result is 1..3999.
-- Raise `ValueError` for an empty string or any character outside
-  "IVXLCDM" (case-sensitive: lowercase is invalid).
+    roman_to_int("XIZ")      ->  raises ValueError
+        'Z' is not a Roman numeral letter. Example message:
+        invalid Roman numeral character 'Z'
 
 ========================================================================
 COMPLEXITY TARGET
 ========================================================================
-- Time O(n), space O(1): one pass over the string with a fixed 7-entry
-  lookup table.
+- O(n) time: one pass over the string, with no loop inside a loop.
+- O(1) space: a fixed 7-entry lookup table and a few variables, the
+  same however long the string is.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
 - Single letters: "I" -> 1, "M" -> 1000
-- Every subtractive pair: "IV", "IX", "XL", "XC", "CD", "CM"
-- Largest standard value "MMMCMXCIX" -> 3999
-- Empty string ""  -> ValueError
-- Lowercase "xiv"  -> ValueError
-- Invalid letter "MXQ" -> ValueError
-- Whitespace " X " -> ValueError
+- Every subtractive pair: "IV" -> 4, "IX" -> 9, "XL" -> 40,
+  "XC" -> 90, "CD" -> 400, "CM" -> 900
+- Largest standard value: "MMMCMXCIX" -> 3999
+- Empty string: "" -> raises ValueError
+- Lowercase: "xiv" -> raises ValueError
+- Invalid letter: "MXQ" -> raises ValueError
+- Whitespace: " X " -> raises ValueError
 
 ========================================================================
 HINTS (read only if you get stuck)
@@ -81,11 +98,11 @@ HINTS (read only if you get stuck)
 2. Validate first: loop over the characters and raise if one is
    `not in VALUES`.
 3. For each position i, compare VALUES[s[i]] with the NEXT letter's
-   value (if there is a next letter). If the next is bigger, subtract;
-   otherwise add.
+   value (if there is a next letter). If the next is bigger, subtract.
+   Otherwise, add.
 4. Alternative trick: walk the string from RIGHT to LEFT, remembering
-   the previous value; subtract when the current value is smaller than
-   the previous one.
+   the value of the letter you just looked at. Subtract when the
+   current value is smaller than that one, otherwise add.
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
@@ -101,7 +118,8 @@ STRETCH GOALS
 ========================================================================
 - Write the inverse, `int_to_roman(n)` (LeetCode #12).
 - Strict validation: reject malformed numerals like "IIII", "VV", "IC"
-  or "IL". (Hint: `int_to_roman(roman_to_int(s)) == s` is a neat check.)
+  or "IL". (Hint: `int_to_roman(roman_to_int(s)) == s` is a neat
+  check.)
 """
 
 

@@ -8,10 +8,13 @@ A Python learning playground: 94 coding challenges that start with the basics
 and build up to LeetCode-style algorithms. You solve them **test-first**.
 
 Each challenge is a stub function (or class) that just raises
-`NotImplementedError`. Above it, a detailed docblock explains the problem, with
-examples, constraints, edge cases, hints, the Python concepts involved, stretch
-goals and (from level 07) a target time/space complexity. Each challenge has an
-empty test file waiting for your tests.
+`NotImplementedError`. Above it, a docblock explains the task in plain
+language: what to build, the exact rules, worked examples, edge cases to
+test, hints, and stretch goals. See [How to read a challenge](#how-to-read-a-challenge).
+Each challenge has an empty test file waiting for your tests.
+
+New to the jargon? [GLOSSARY.md](GLOSSARY.md) explains terms like *mutate*,
+*falsy*, *hashable* and *O(n)* in plain words.
 
 ## Requirements
 
@@ -60,6 +63,25 @@ click. If tests don't show up, run **Python: Select Interpreter** and choose
 5. **Refactor**, then try the stretch goals.
 
 Try not to peek at the HINTS section until you've been stuck for a while.
+
+### How to read a challenge
+
+Every challenge docblock has the same sections, in this order:
+
+| Section | What it tells you |
+| --- | --- |
+| **YOUR TASK** | What to write and what it gives back, in a sentence or three, with one example. Start here. |
+| **Background** (some challenges) | An explanation of an idea you need first, such as "rotate", a decorator or a binary search tree, with small pictures. |
+| **THE RULES** | A numbered checklist of *everything* your code must do, each rule stated once. "You can assume" lists what you don't need to check. |
+| **EXAMPLES** | `call  ->  result`, with a line under each one explaining *why*. |
+| **COMPLEXITY TARGET** (level 07+) | How fast your solution should be, in Big-O plus plain English. |
+| **EDGE CASES TO TEST** | Ready-made test ideas, each with its expected result. Turn each one into an `assert`. |
+| **HINTS** | From a gentle nudge to nearly the answer. Read one at a time. |
+| **PYTHON CONCEPTS TO LEARN** | The Python features this challenge practises. |
+| **STRETCH GOALS** | Optional extras once your tests pass. |
+
+When you're unsure what the code should do in some situation, **THE RULES** is
+the source of truth. If a word is unfamiliar, check [GLOSSARY.md](GLOSSARY.md).
 
 ### Useful pytest commands
 

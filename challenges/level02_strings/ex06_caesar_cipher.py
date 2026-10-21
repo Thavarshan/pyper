@@ -5,64 +5,89 @@ Topics:    ord(), chr(), modulo arithmetic, str.isupper(), building strings
 Source:    Classic cryptography exercise
 
 ========================================================================
-PROBLEM
+YOUR TASK
+========================================================================
+Write two functions:
+
+    encrypt(text, shift)  moves every letter FORWARD `shift` places in
+                          the alphabet.
+    decrypt(text, shift)  undoes encrypt by moving every letter
+                          BACKWARD `shift` places.
+
+    encrypt("Hello, World!", 3)  ->  'Khoor, Zruog!'
+
+========================================================================
+WHAT A "CAESAR CIPHER" IS
 ========================================================================
 The Caesar cipher is one of the oldest ways to hide a message. Each
-letter is replaced by the letter a fixed number of positions (the SHIFT)
+letter is replaced by the letter a fixed number of places (the SHIFT)
 further along the alphabet. With a shift of 3:
 
     A -> D,  B -> E,  ...,  W -> Z,  X -> A,  Y -> B,  Z -> C
 
-Notice how it WRAPS AROUND: after Z it starts again at A.
+Notice how it WRAPS AROUND: after Z it starts again at A. Like a clock,
+26 steps bring you back to where you started. So a shift of 26 changes
+nothing, and a shift of 29 is the same as a shift of 3 (29 = 26 + 3).
+A negative shift moves backward: a shift of -1 turns "a" into "z".
 
-Write two functions:
+========================================================================
+THE RULES
+========================================================================
+Your functions must:
+1. Shift only the 26 English letters A-Z and a-z.
+2. Keep each letter's case: upper-case stays upper, lower-case stays
+   lower.
+3. Copy everything else through UNCHANGED: digits, spaces,
+   punctuation, accented letters and emoji.
+4. Accept ANY int as `shift`, with wrap-around: negative shifts move
+   backward, and 0 or 26 leave the text unchanged
+   (encrypt(text, 0) == text and encrypt(text, 26) == text). A shift
+   bigger than 26 wraps too: 29 acts like 3.
+5. Return a new string of the SAME length as `text`.
+6. Make `decrypt` undo `encrypt`: decrypt(encrypt(text, k), k) == text
+   for any k.
+7. Make encrypt(text, -k) give the same result as decrypt(text, k).
 
-1. `encrypt(text, shift)` shifts every letter FORWARD by `shift`.
-2. `decrypt(text, shift)` undoes encrypt, shifting BACKWARD by `shift`,
-   so that decrypt(encrypt(text, k), k) == text for any k.
-
-Rules:
-    - Only the 26 English letters A-Z / a-z are shifted.
-    - CASE IS PRESERVED: upper-case stays upper, lower-case stays lower.
-    - Everything else (digits, spaces, punctuation, accented letters,
-      emoji) is copied through UNCHANGED.
-    - `shift` may be ANY int: negative (shift backwards), 0 (no change),
-      or larger than 26 (a shift of 29 is the same as a shift of 3).
+You can assume:
+- `text` is a str. It may be empty.
+- `shift` is an int.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> encrypt("abc", 1)
-    'bcd'
+Each line shows a call, then what it should return.
 
-    >>> encrypt("Hello, World!", 3)
-    'Khoor, Zruog!'
+    encrypt("abc", 1)            ->  'bcd'
+        Each letter moves one place forward.
 
-    >>> encrypt("xyz", 3)
-    'abc'
+    encrypt("Hello, World!", 3)  ->  'Khoor, Zruog!'
+        Letters move 3 places and keep their case. The comma, space
+        and "!" stay as they are.
 
-    >>> decrypt("Khoor, Zruog!", 3)
-    'Hello, World!'
+    encrypt("xyz", 3)            ->  'abc'
+        x, y and z run past the end of the alphabet and wrap around
+        to a, b and c.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `text` is a str (may be empty). `shift` is an int.
-- Return a new string of the SAME length as `text`.
-- encrypt(text, -k) == decrypt(text, k).
-- encrypt(text, 26) == text, and encrypt(text, 0) == text.
+    decrypt("Khoor, Zruog!", 3)  ->  'Hello, World!'
+        Moving 3 places backward undoes the encryption.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Empty string -> ""
-- Wrap-around at the end of the alphabet ("z" + 1 -> "a", "Z" + 1 -> "A")
-- Negative shift ("a" - 1 -> "z")
-- Shift of 0 and shift of 26 -> unchanged
-- Large shifts (27, 52, 1000) behave like shift % 26
-- Case preserved in mixed-case text
-- Digits, spaces, punctuation unchanged
-- Round trip: decrypt(encrypt(t, k), k) == t for several k
+- Empty string: encrypt("", 5) -> ''
+- Wrap-around at the end of the alphabet: encrypt("z", 1) -> 'a' and
+  encrypt("Z", 1) -> 'A'
+- Negative shift: encrypt("a", -1) -> 'z'
+- Shift of 0 and shift of 26: encrypt("Hi!", 0) -> 'Hi!' and
+  encrypt("Hi!", 26) -> 'Hi!'
+- Large shifts behave like shift % 26 (the remainder after dividing by
+  26): encrypt("abc", 27) -> 'bcd', encrypt("abc", 52) -> 'abc', and
+  encrypt("abc", 1000) -> 'mno' (1000 % 26 is 12)
+- Case is kept in mixed-case text: encrypt("AbC", 1) -> 'BcD'
+- Digits, spaces and punctuation are unchanged:
+  encrypt("a1 b!", 5) -> 'f1 g!'
+- Round trip: decrypt(encrypt(t, k), k) == t for several k, such as
+  -30, 0, 3 and 1000
 
 ========================================================================
 HINTS (read only if you get stuck)
@@ -76,14 +101,15 @@ HINTS (read only if you get stuck)
    correctly: (0 - 1) % 26 == 25.
 4. decrypt can simply call encrypt with -shift.
 5. Build a list of characters and "".join() it at the end. Use
-   `"a" <= ch <= "z"` (not ch.isalpha(), which is True for accented
-   letters too) to test for plain lower-case letters.
+   `"a" <= ch <= "z"` to test for plain lower-case letters. Don't use
+   ch.isalpha(), which is True for accented letters too.
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
 ========================================================================
 - `ord()` and `chr()`: characters are numbers underneath
-- Modulo for wrap-around arithmetic (clocks, alphabets, circular lists)
+- Modulo (`%`, the remainder) for wrap-around arithmetic (clocks,
+  alphabets, circular lists)
 - Comparing characters with < and > (they compare by code point)
 - `str.isupper()` / `str.islower()`
 - Building strings with a list and "".join()
@@ -91,7 +117,8 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- Solve it with `str.maketrans()` and `str.translate()`.
+- Solve it with `str.maketrans()` and `str.translate()` (build a table
+  saying which letter becomes which, then apply it in one go).
 - Write `crack(ciphertext) -> int` that guesses the shift by assuming
   the most common letter in English text is "e".
 - Implement the Vigenere cipher, which uses a keyword instead of a

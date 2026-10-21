@@ -5,87 +5,116 @@ Topics:    FIFO vs LIFO, composing data structures, amortized analysis
 Source:    LeetCode #232 "Implement Queue using Stacks"
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-A QUEUE is "First In, First Out" (FIFO) - like a line at a shop: the
+Write a `MyQueue` class: a first-in, first-out queue built from TWO
+Python lists, each used ONLY as a stack. Fill in:
+
+- `__init__()`: create an empty queue
+- `push(x)`: add x to the BACK of the queue, return None
+- `pop()`: remove and return the item at the FRONT
+- `peek()`: return the FRONT item without removing it
+- `empty()`: return True if the queue has no items
+- `__len__()`: makes `len(q)` give the number of items
+
+    q = MyQueue()
+    q.push(1)
+    q.push(2)
+    q.pop()     # -> 1   (first in, first out)
+
+========================================================================
+WHAT "QUEUE" AND "STACK" MEAN
+========================================================================
+A QUEUE is "First In, First Out" (FIFO), like a line at a shop: the
 first person to join is the first to be served. A STACK (see ex03) is
-the opposite: Last In, First Out.
+the opposite: "Last In, First Out" (LIFO), like a pile of plates.
 
-Your job: build a queue called `MyQueue` using ONLY two Python lists,
-and use each list ONLY as a stack. That means the only list operations
-you may use are:
+THE TRICK: keep an "in" stack for new items and an "out" stack for
+items ready to leave. When you need the front of the queue and "out"
+is empty, pop EVERYTHING from "in" and push it onto "out". Pouring one
+stack into another reverses the order, so the oldest item ends up on
+top of "out", exactly where you need it:
 
-    lst.append(x)      push onto the top (end)
-    lst.pop()          pop from the top (end)     <- no pop(0)!
-    lst[-1]            peek at the top
-    len(lst) / not lst size / emptiness check
+    push 1, 2, 3          in: [1, 2, 3]    out: []
+    pop() needs front     in: []           out: [3, 2, 1]   (poured)
+                          pop from out -> 1
+    push 4                in: [4]          out: [3, 2]
+    pop()                 out is not empty, so just pop from out -> 2
 
-(`lst.pop(0)`, `lst.insert(0, x)`, slicing, `reversed`, and
-`collections.deque` are NOT allowed - they would defeat the purpose.)
+========================================================================
+THE RULES
+========================================================================
+Your class must:
+1. Store the items in exactly two lists, used ONLY as stacks. The only
+   list operations allowed are:
 
-The trick: keep an "in" stack for new items and an "out" stack for
-items ready to leave. When you need the front of the queue and the
-"out" stack is empty, pop EVERYTHING from "in" and push it onto "out".
-Pouring a stack into another reverses its order - so the oldest item
-ends up on top of "out", exactly where you need it.
+       lst.append(x)          push onto the top (the end)
+       lst.pop()              pop from the top (the end)   <- no pop(0)!
+       lst[-1]                peek at the top
+       len(lst), not lst      check the size, or whether it is empty
 
-Methods:
-    MyQueue()          Create an empty queue.
-    .push(x)           Add x to the BACK of the queue. Returns None.
-    .pop()             Remove and return the item at the FRONT.
-                       Empty -> IndexError("pop from empty queue").
-    .peek()            Return the FRONT item without removing it.
-                       Empty -> IndexError("peek from empty queue").
-    .empty()           True if the queue has no items.
-    len(q)             Number of items (implement __len__).
+   `lst.pop(0)`, `lst.insert(0, x)`, slicing, `reversed` and
+   `collections.deque` are NOT allowed. They would defeat the purpose.
+2. `push(x)` adds x to the BACK of the queue and returns None.
+3. `pop()` removes and returns the FRONT item. On an empty queue it
+   raises IndexError("pop from empty queue").
+4. `peek()` returns the FRONT item without removing it. On an empty
+   queue it raises IndexError("peek from empty queue").
+5. `empty()` returns True if the queue has no items.
+6. `len(q)` returns the number of items.
+7. push is O(1) (the same small cost however big the queue is). pop
+   and peek are AMORTIZED O(1), explained below.
+
+You can assume:
+- Any Python object can be queued, including None.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> q = MyQueue()
-    >>> q.push(1); q.push(2); q.push(3)
-    >>> q.peek()
-    1
-    >>> q.pop()
-    1
-    >>> q.push(4)
-    >>> [q.pop(), q.pop(), q.pop()]
-    [2, 3, 4]
-    >>> q.empty()
-    True
+A short script. Each `# ->` comment shows what that line returns.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- Use exactly two lists, used only as stacks (see allowed operations).
-- Any Python object can be queued, including None.
-- pop/peek on an empty queue raise IndexError.
-- push is O(1). pop and peek are AMORTIZED O(1) (explained below).
+    q = MyQueue()
+    q.push(1)
+    q.push(2)
+    q.push(3)
+    q.peek()                       # -> 1   (front, not removed)
+    q.pop()                        # -> 1
+    q.push(4)
+    [q.pop(), q.pop(), q.pop()]    # -> [2, 3, 4]
+    q.empty()                      # -> True
+    q.pop()                        # raises IndexError
+                                   # ("pop from empty queue")
 
 ========================================================================
 COMPLEXITY: WHAT DOES "AMORTIZED O(1)" MEAN?
 ========================================================================
-One single pop() can be slow: if "out" is empty and "in" holds n items,
-you move all n of them. But each item is moved from "in" to "out" at
-most ONCE in its whole life. Over any sequence of n operations the
-total work is at most about 3n steps (push, move, pop per item), so the
-AVERAGE cost per operation is constant. "Amortized O(1)" means exactly
-that: occasionally expensive, but cheap on average over many calls.
+A single pop() can be slow: if "out" is empty and "in" holds n items,
+you move all n of them. But each item moves from "in" to "out" at most
+ONCE in its whole life. So over any run of n operations, the total
+work is at most about 3n steps (push, move, pop for each item). The
+AVERAGE cost per operation is then constant.
 
-If you moved items back to "in" after every pop, you would lose this
-and every pop would be O(n).
+"Amortized O(1)" means exactly that: occasionally expensive, but cheap
+on average over many calls. For example, 10_000 pushes then 10_000
+pops move each item once: 10_000 moves in total, not 10_000 per pop.
+
+If you moved the items back to "in" after every pop, you would lose
+this, and every pop would be O(n) (its cost would grow with the number
+of items).
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- New queue: empty() True, len 0
-- pop()/peek() on empty -> IndexError
-- FIFO order for a simple push, push, push, pop, pop, pop sequence
-- Interleaved pushes and pops (push 1, push 2, pop, push 3, pop, pop)
-  still give 1, 2, 3
-- peek doesn't remove (len unchanged, pop returns same value)
-- Queueing None
-- A long run (e.g. 10_000 pushes then pops) returns items in order
+- A new queue: empty() is True, len(q) == 0
+- pop() and peek() on an empty queue -> raise IndexError
+- FIFO order: push 1, 2, 3 then pop three times -> 1, 2, 3
+- Interleaved pushes and pops: push 1, push 2, pop, push 3, pop, pop
+  -> the pops give 1, 2, 3
+- peek doesn't remove: len is unchanged, and the next pop returns the
+  same value
+- Queueing None: push(None) -> len(q) == 1, empty() is False,
+  pop() returns None
+- A long run: 10_000 pushes then 10_000 pops returns 0..9999 in order
 - Draining the queue fully makes empty() True again
 
 ========================================================================
@@ -96,26 +125,27 @@ HINTS (read only if you get stuck)
 3. Write a helper `_shift()`: if `self._out` is empty, pop every item
    from `self._in` and append it to `self._out`.
 4. pop and peek: call `_shift()`, then check whether `self._out` is
-   still empty (-> the whole queue is empty -> IndexError); otherwise
-   use `self._out.pop()` / `self._out[-1]`.
+   still empty. If it is, the whole queue is empty, so raise
+   IndexError. Otherwise use `self._out.pop()` or `self._out[-1]`.
 5. len is `len(self._in) + len(self._out)`.
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
 ========================================================================
 - FIFO vs LIFO
-- Building one abstraction out of another (composition)
-- Amortized analysis
+- Building one data structure out of another (composition)
+- Amortized analysis (average cost over many operations)
 - Private helper methods (leading underscore)
-- Why `list.pop(0)` is O(n) and what `collections.deque` is for
+- Why `list.pop(0)` is O(n) (every other item shifts down one place)
+  and what `collections.deque` is for
 
 ========================================================================
 STRETCH GOALS
 ========================================================================
 - Reuse your Stack class from ex03 instead of raw lists.
 - The reverse challenge: LeetCode #225 "Implement Stack using Queues".
-- Time 100_000 pushes + pops with `list.pop(0)` vs your MyQueue vs
-  `collections.deque` using the `timeit` module.
+- Use the `timeit` module to time 100_000 pushes + pops with
+  `list.pop(0)`, with your MyQueue, and with `collections.deque`.
 - Add `__iter__` (front to back) without changing the queue.
 """
 

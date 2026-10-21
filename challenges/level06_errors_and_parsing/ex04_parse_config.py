@@ -1,103 +1,134 @@
-"""
+r"""
 Challenge: Parse Config
 Level:     06 - Errors and Parsing
 Topics:    line-by-line parsing, custom exceptions, str.partition
 Source:    Simplified INI / .env file parser
 
 ========================================================================
-PROBLEM
+YOUR TASK
+========================================================================
+Write `parse_config(text)`. It reads the text of a simple config file,
+made of "key = value" lines, and returns a dict that maps each key to
+its value (both strings). A bad line raises a `ConfigError` that says
+which line was wrong.
+
+    parse_config("host = localhost\nport=5432")
+        ->  {'host': 'localhost', 'port': '5432'}
+
+========================================================================
+BACKGROUND: THE FILE FORMAT AND ConfigError
 ========================================================================
 Configuration files often look like this:
 
-    # database settings
-    host = localhost
-    port=5432
+    # database settings      <- line 1: a comment, skipped
+    host = localhost         <- line 2: key "host", value "localhost"
+    port=5432                <- line 3: spaces around "=" are optional
+                             <- line 4: blank, skipped
+    name = my app            <- line 5: a value can contain spaces
 
-    name = my app
+That text gives {'host': 'localhost', 'port': '5432', 'name': 'my app'}.
 
-Write `parse_config(text)` that turns such text into a dict of
-str -> str.
+`ConfigError` is a custom exception (an exception class written for
+this program). It is already defined for you, just below this
+docstring. Read it: it shows how a custom exception can carry extra
+data. Its constructor (its `__init__`) takes a line number and a short
+reason, and builds the full message from them:
 
-Rules (lines are numbered starting at 1, counting EVERY line, including
-blank and comment lines):
-1. Split the text into lines (`str.splitlines()`).
-2. Ignore blank lines (empty or only whitespace).
-3. Ignore comment lines: lines whose first non-whitespace character is
-   "#". (A "#" later in a line is NOT a comment; it's part of the value.)
-4. Every other line must contain an "=". Split it at the FIRST "=":
-   the part before is the key, the part after is the value. Strip
-   whitespace from both. So "url = a=b" gives key "url", value "a=b".
-5. The value may be empty ("debug =" -> {"debug": ""}).
-6. The key must NOT be empty after stripping.
-7. Keys are case-sensitive, and values are always kept as strings (no
-   conversion to int/bool).
+    err = ConfigError(3, "missing '='")
+    str(err)            # -> "line 3: missing '='"
+    err.line_number     # -> 3
+    err.reason          # -> "missing '='"
 
-Errors - raise `ConfigError` (a custom exception, already defined for
-you below) when:
-- A non-blank, non-comment line has no "=":
-      message: "line 3: missing '='"
-- The key is empty (e.g. "= value"):
-      message: "line 3: empty key"
-- A key appears a second time:
-      message: "line 7: duplicate key 'host'"
+So you raise it with `raise ConfigError(line_number, "missing '='")`,
+and callers can read `err.line_number` to find the bad line.
 
-The ConfigError must also carry the line number as an attribute
-`line_number` (an int), so callers can do `err.line_number`. Look at
-the ConfigError class below: its constructor already takes care of
-this - read it to see how custom exceptions can carry extra data.
+========================================================================
+THE RULES
+========================================================================
+Your function must:
+1. Split the text into lines with `str.splitlines()`. Number the lines
+   from 1, counting EVERY line, including blank and comment lines.
+2. Skip blank lines (empty, or only whitespace).
+3. Skip comment lines: lines whose first non-whitespace character is
+   "#". A "#" later in a line is NOT a comment. It is part of the
+   value.
+4. Split every other line at its FIRST "=". The part before it is the
+   key, and the part after it is the value. Strip whitespace from
+   both. So "url = a=b" gives the key "url" and the value "a=b".
+5. Allow an empty value: "debug =" gives {"debug": ""}.
+6. Treat keys as case-sensitive, and always keep values as strings (no
+   converting to int or bool).
+7. Return a new dict[str, str], with the keys in file order.
+8. Raise `ConfigError` (not ValueError) for a bad line, created as
+   `ConfigError(line_number, reason)`. The three errors, with their
+   reasons and the full messages they produce:
+
+       a line with no "="           reason: "missing '='"
+                                    -> "line 3: missing '='"
+       a key that is empty after    reason: "empty key"
+       stripping, as in "= value"   -> "line 3: empty key"
+       a key seen before            reason: "duplicate key 'host'"
+                                    -> "line 7: duplicate key 'host'"
+
+   For a duplicate, report the line of the SECOND occurrence.
+9. Stop at the FIRST error, so the error reports the earliest bad
+   line.
+10. Not use the `configparser` module.
+
+You can assume:
+- `text` is a str.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> parse_config("host = localhost\\nport=5432")
-    {'host': 'localhost', 'port': '5432'}
+Each line shows a call, then what it should return.
 
-    >>> parse_config("# comment\\n\\n  name =  my app  ")
-    {'name': 'my app'}
+    parse_config("host = localhost\nport=5432")
+        ->  {'host': 'localhost', 'port': '5432'}
+        Two lines, two keys. The spaces around "=" are stripped.
 
-    >>> parse_config("")
-    {}
+    parse_config("# comment\n\n  name =  my app  ")
+        ->  {'name': 'my app'}
+        Line 1 is a comment and line 2 is blank, so both are skipped.
+        The space inside "my app" stays.
 
-    >>> parse_config("a = 1\\njunk line")
-    Traceback (most recent call last):
-    ...
-    ConfigError: line 2: missing '='
+    parse_config("")
+        ->  {}
+        No lines, no keys.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- `text` is a str; the result is a new dict[str, str] whose keys are in
-  file order.
-- Raise ConfigError (not ValueError) for malformed lines and duplicate
-  keys, created as `ConfigError(line_number, reason)` where reason is
-  e.g. "missing '='" (the class builds the full message).
-- Stop at the FIRST error found (report the earliest bad line).
-- Do not use the `configparser` module.
+    parse_config("a = 1\njunk line")
+        ->  raises ConfigError: line 2: missing '='
+        Line 2 has no "=". The error's line_number is 2.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Empty text and text with only comments/blank lines -> {}
-- Whitespace around keys, values and "="
-- Value containing "=" ("url = a=b") and "#" ("color = #fff")
-- Empty value ("debug =") -> ""
-- Indented comment "   # note" is ignored
-- Missing "=" -> ConfigError, check `excinfo.value.line_number`
-- Empty key "= 5" -> ConfigError
-- Duplicate key -> ConfigError reporting the SECOND occurrence's line
-- Line numbers count blank/comment lines too
-- ConfigError is a subclass of Exception (so `except Exception` would
-  catch it) - `issubclass(ConfigError, Exception)`
+- Empty text, and text with only comments and blank lines -> {}
+- Whitespace around keys, values and "=": "  a  =  1  " -> {'a': '1'}
+- A value containing "=": "url = a=b" -> {'url': 'a=b'}
+- A value containing "#": "color = #fff" -> {'color': '#fff'}
+- An empty value: "debug =" -> {'debug': ''}
+- An indented comment "   # note" is skipped
+- Missing "=": "a = 1\njunk line" -> ConfigError, and
+  `excinfo.value.line_number` is 2
+- Empty key: "= 5" -> ConfigError with the message "line 1: empty key"
+- Duplicate key: "host=a\nhost=b" -> ConfigError on line 2 (the
+  SECOND occurrence)
+- Line numbers count blank and comment lines too: "# c\n\nx" ->
+  ConfigError on line 3
+- ConfigError is a subclass of Exception, so `except Exception` would
+  catch it: issubclass(ConfigError, Exception) is True
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
 1. `for line_number, line in enumerate(text.splitlines(), start=1):`
-2. `stripped = line.strip()`; then skip if `not stripped` or
+2. `stripped = line.strip()`. Then skip the line if `not stripped` or
    `stripped.startswith("#")`.
-3. `key, sep, value = stripped.partition("=")` - if `sep` is "" there
-   was no "=" at all.
-4. Check `if key in result:` BEFORE storing to detect duplicates.
+3. `key, sep, value = stripped.partition("=")` splits at the first
+   "=". If `sep` is "", there was no "=" at all. Strip `key` and
+   `value` afterwards.
+4. Check `if key in result:` BEFORE storing, to detect duplicates.
 5. `raise ConfigError(line_number, "empty key")`.
 
 ========================================================================
@@ -107,15 +138,17 @@ PYTHON CONCEPTS TO LEARN
 - Exceptions carrying extra attributes (err.line_number)
 - `str.splitlines()`, `str.partition()`, `str.startswith()`
 - `enumerate(..., start=1)`
-- `pytest.raises(...) as excinfo` and inspecting `excinfo.value`
+- `pytest.raises(...) as excinfo` and inspecting `excinfo.value` (the
+  exception that was raised)
 
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- Support [sections]: return dict[str, dict[str, str]] with a
-  "default" section for keys before the first header.
-- Allow quoted values: name = "  spaced  " keeps inner spaces.
-- Add `parse_typed_config` that converts "true"/"false" to bool and
+- Support [sections] (header lines like "[database]" that group the
+  keys below them): return dict[str, dict[str, str]], with a "default"
+  section for keys before the first header.
+- Allow quoted values: name = "  spaced  " keeps the inner spaces.
+- Add `parse_typed_config`, which converts "true"/"false" to bool and
   digit-only values to int.
 """
 

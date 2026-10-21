@@ -5,19 +5,33 @@ Topics:    divide and conquer, recursion, merging sorted lists, stability
 Source:    Classic algorithm (John von Neumann, 1945)
 
 ========================================================================
-PROBLEM
+YOUR TASK
+========================================================================
+Write two functions:
+
+    merge(left, right)  takes two lists that are already sorted and
+                        RETURNS one NEW sorted list with all their
+                        items.
+    merge_sort(items)   RETURNS a NEW sorted copy of `items`, using
+                        merge sort (and your merge()).
+
+    merge_sort([5, 2, 4, 1, 3])  ->  [1, 2, 3, 4, 5]
+
+========================================================================
+HOW MERGE SORT WORKS
 ========================================================================
 DIVIDE AND CONQUER is a strategy with three steps:
 
-    1. DIVIDE   - split the problem into smaller sub-problems
-    2. CONQUER  - solve each sub-problem (usually recursively)
-    3. COMBINE  - join the sub-answers into the full answer
+    1. DIVIDE   split the problem into smaller sub-problems
+    2. CONQUER  solve each sub-problem (usually recursively, meaning
+                the function calls itself)
+    3. COMBINE  join the sub-answers into the full answer
 
-MERGE SORT applies it to sorting:
+Merge sort applies it to sorting:
 
     1. Split the list into two halves.
     2. Merge-sort each half (recursively). A list of 0 or 1 items is
-       already sorted - that's the base case.
+       already sorted. That's the base case, where the recursion stops.
     3. MERGE the two sorted halves into one sorted list.
 
     [5, 2, 4, 1]
@@ -26,80 +40,85 @@ MERGE SORT applies it to sorting:
     merge  -> [2, 5]        [1, 4]
     merge  -> [1, 2, 4, 5]
 
-Merging two already-sorted lists is easy and fast: look at the front
-item of each, take the smaller one, repeat. When one list runs out,
-append whatever is left of the other.
+Merging two lists that are already sorted is easy and fast. Look at
+the front item of each, take the smaller one, and repeat. When one
+list runs out, add whatever is left of the other.
 
-Write two functions:
+========================================================================
+THE RULES
+========================================================================
+Your functions must:
+1. merge: return a NEW list, sorted ascending, holding every item from
+   `left` and `right`.
+2. merge: when an item in `left` equals an item in `right`, take the
+   one from LEFT first. This makes merge sort STABLE: equal items keep
+   their original order.
+3. merge_sort: return a NEW list, sorted ascending, built with the
+   recursive algorithm above and your merge(). Return a new list
+   object even for 0 or 1 items.
+4. Never change (mutate) the inputs of either function.
+5. Not use sorted(), list.sort(), heapq or heapq.merge in the
+   solution. Use sorted() in your TESTS as the reference.
 
-    merge(left, right)
-        Both inputs are sorted ascending. Return a NEW sorted list with
-        all items from both. When left and right have equal items, take
-        from LEFT first - this is what makes merge sort STABLE.
-        Do not modify the inputs.
-
-    merge_sort(items)
-        Return a NEW sorted list (ascending), built with the recursive
-        algorithm above and your merge(). Do not modify `items`.
-
-STABLE means equal items keep their original relative order.
+You can assume:
+- All items can be compared with each other.
+- merge's `left` and `right` are each sorted ascending.
+- Lists have 0 to 10**5 items. Recursion goes only about log2(n)
+  levels deep (about 17 for 10**5 items), so it's safe.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> merge([1, 4, 9], [2, 3, 10])
-    [1, 2, 3, 4, 9, 10]
+Each line shows a call, then what it should return.
 
-    >>> merge([], [1, 2])
-    [1, 2]
+    merge([1, 4, 9], [2, 3, 10])  ->  [1, 2, 3, 4, 9, 10]
+        Take the smaller front item each time: 1, 2, 3, 4, 9, then
+        the leftover 10.
 
-    >>> merge_sort([5, 2, 4, 1, 3])
-    [1, 2, 3, 4, 5]
+    merge([], [1, 2])             ->  [1, 2]
+        Left is empty, so the result is just the right side.
 
-    >>> merge_sort([])
-    []
+    merge_sort([5, 2, 4, 1, 3])   ->  [1, 2, 3, 4, 5]
+        Split, sort each half, merge.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- Items are mutually comparable; length 0..10**5 (recursion depth is
-  only ~log2(n), so that's safe).
-- Return new lists; never modify inputs. merge_sort must return a new
-  list object even for 0 or 1 items.
-- Do NOT use sorted(), list.sort(), heapq or heapq.merge in the
-  solution. Use sorted() in TESTS as the reference.
-- Stable (see merge tie rule).
+    merge_sort([])                ->  []
+        Nothing to sort, but still a new list.
 
 ========================================================================
 COMPLEXITY TARGET
 ========================================================================
-- merge:      Time O(len(left) + len(right)), Space O(same).
-- merge_sort: Time O(n log n) in EVERY case (best, average, worst) -
-              there are log n levels of splitting and each level does
-              O(n) merging work. Space O(n) extra.
+- merge:      Time O(len(left) + len(right)): each item is looked at
+              once. Space O(same): the new list holds every item.
+- merge_sort: Time O(n log n) in EVERY case (best, average, worst).
+              There are about log n levels of splitting, and each
+              level does O(n) merging work. Space O(n) extra for the
+              new lists.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- merge with one or both inputs empty
-- merge where all of left < all of right (and vice versa)
-- merge with equal items (e.g. [1, 2] and [2, 3])
-- merge_sort on empty, single item, two items
+- merge with one or both inputs empty: merge([], []) -> []
+- All of left smaller than all of right:
+  merge([1, 2], [3, 4]) -> [1, 2, 3, 4] (and the other way round)
+- Equal items: merge([1, 2], [2, 3]) -> [1, 2, 2, 3]
+- merge_sort on empty, one item and two items:
+  merge_sort([2, 1]) -> [1, 2]
 - Already sorted, reverse sorted, all equal, duplicates, negatives
-- Input unchanged, result is a new object
-- STABILITY: sort objects that compare only by a key (see the
-  insertion sort challenge for ideas) and check equal ones keep order
-- Random lists vs sorted() (fixed random seed)
-- A large list (e.g. 50_000 random ints) runs quickly
+- The input is unchanged, and the result is a new object
+- STABILITY: sort objects that compare only by one field (see the
+  insertion sort challenge for ideas). Equal ones must keep their
+  order.
+- Random lists vs sorted(), with a fixed random seed
+- A large list (for example 50_000 random ints) runs quickly
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
-1. merge: use two indices i and j starting at 0. While both have items
-   left, append the smaller of left[i] / right[j] (use `<=` so ties
-   come from left) and advance that index.
+1. merge: use two indices, i and j, starting at 0. While both lists
+   have items left, append the smaller of left[i] and right[j] and
+   move that index on. Use `<=` so that ties come from left.
 2. After the loop, `result.extend(left[i:])` and
-   `result.extend(right[j:])` - one of them will be empty.
+   `result.extend(right[j:])`. One of them will be empty.
 3. merge_sort base case: `if len(items) <= 1: return list(items)`
    (a copy, not `items` itself).
 4. `mid = len(items) // 2`, then recurse on `items[:mid]` and
@@ -109,7 +128,7 @@ HINTS (read only if you get stuck)
 PYTHON CONCEPTS TO LEARN
 ========================================================================
 - Divide and conquer
-- Recursion on halves; recursion depth O(log n)
+- Recursion on halves, with a recursion depth of O(log n)
 - Two-pointer technique
 - Slicing creates copies
 - Stability and why `<=` vs `<` matters
@@ -118,9 +137,10 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- Write a bottom-up (iterative) merge sort with no recursion.
-- Count INVERSIONS (pairs i < j with a[i] > a[j]) during the merge step
-  in O(n log n).
+- Write a bottom-up (iterative) merge sort with no recursion: merge
+  pairs of 1-item lists, then pairs of 2-item lists, and so on.
+- Count INVERSIONS (pairs of positions i < j with a[i] > a[j]) during
+  the merge step, in O(n log n).
 - Use `timeit` to compare merge_sort with bubble_sort on 2_000 items.
 - LeetCode #88 "Merge Sorted Array" and #21 "Merge Two Sorted Lists".
 """

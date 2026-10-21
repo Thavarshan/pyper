@@ -5,26 +5,36 @@ Topics:    stacks, dicts as lookup tables, string iteration
 Source:    LeetCode #20 "Valid Parentheses"
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-You are given a string made up only of the six bracket characters
+Write `is_valid(s)`. `s` is a string of brackets. Return True if the
+brackets are "balanced" (every bracket is closed properly, in the
+right order), otherwise False.
+
+    is_valid("{[()]}")  ->  True
+
+========================================================================
+WHAT "BALANCED" MEANS
+========================================================================
+The string uses only these six characters:
 
     (  )  [  ]  {  }
 
-Decide whether the brackets are "balanced". A string is balanced when:
+A string is balanced when all three of these are true:
 
-    1. Every opening bracket is eventually closed by a closing bracket
-       of the SAME kind: "(" by ")", "[" by "]", "{" by "}".
-    2. Brackets close in the correct order: the most recently opened,
-       still-unclosed bracket must be the first one to be closed.
-       "([])" is fine, but "([)]" is not - the "[" was opened last, so
-       it must be closed before the ")".
+    1. Every opening bracket is closed by a closing bracket of the
+       SAME kind: "(" by ")", "[" by "]", "{" by "}".
+    2. Brackets close in the right order: the most recently opened
+       bracket that is still open must be closed first.
+       "([])" is fine. "([)]" is not: the "[" was opened last, so it
+       must be closed before the ")".
     3. No closing bracket appears without a matching opener before it.
 
-Return True if the string is balanced, False otherwise.
-
-What is a STACK? A stack is a "last in, first out" collection - think of
-a pile of plates. You push onto the top and pop from the top. That is
+========================================================================
+WHAT A STACK IS
+========================================================================
+A STACK is a "last in, first out" collection, like a pile of plates.
+You push (add) onto the top and pop (remove) from the top. That is
 exactly rule 2: the last bracket opened is the first one that must be
 closed. Watch the stack while scanning "{[()]}":
 
@@ -38,45 +48,54 @@ closed. Watch the stack while scanning "{[()]}":
      }     pop "{" ok     (empty)  -> balanced!
 
 ========================================================================
-EXAMPLES
+THE RULES
 ========================================================================
-    >>> is_valid("()")
-    True
+Your function must:
+1. Return True if `s` is balanced (rules 1 to 3 above), otherwise
+   False.
+2. Return True for the empty string "" (there is nothing to balance).
 
-    >>> is_valid("()[]{}")
-    True
-
-    >>> is_valid("([)]")
-    False
-
-    >>> is_valid("{[()]}")
-    True
-
-========================================================================
-CONSTRAINTS
-========================================================================
+You can assume:
 - `s` is a str containing only the characters "()[]{}".
 - 0 <= len(s) <= 10_000.
-- The empty string counts as balanced -> True.
-- You do not need to handle other characters (you may treat them as
-  invalid input, but tests will not rely on that).
+- You do not need to handle other characters. You may treat them as
+  invalid input, but the tests will not rely on that.
+
+========================================================================
+EXAMPLES
+========================================================================
+Each line shows a call, then what it should return.
+
+    is_valid("()")      ->  True
+        One pair, opened and closed.
+
+    is_valid("()[]{}")  ->  True
+        Three pairs, one after another.
+
+    is_valid("([)]")    ->  False
+        "[" was opened last, but ")" tries to close first.
+
+    is_valid("{[()]}")  ->  True
+        Pairs nested inside each other, each closed in order.
 
 ========================================================================
 COMPLEXITY TARGET
 ========================================================================
-- Time:  O(n) - look at each character once.
-- Space: O(n) - in the worst case ("((((((") the stack holds every char.
+- Time:  O(n): look at each character once, no loop inside a loop.
+- Space: O(n): in the worst case ("((((((") the stack holds every
+  character.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
 - ""        -> True (nothing to balance)
 - "("       -> False (never closed)
-- ")"       -> False (closing with an empty stack - don't crash!)
+- ")"       -> False (closing with an empty stack: don't crash!)
 - "(]"      -> False (wrong kind)
 - "([)]"    -> False (right kinds, wrong order)
 - "((()))"  -> True (deep nesting)
-- An odd-length string can never be balanced
+- Any odd-length string, like "(()" -> False (it can never be
+  balanced, because brackets come in pairs)
 
 ========================================================================
 HINTS (read only if you get stuck)
@@ -88,7 +107,7 @@ HINTS (read only if you get stuck)
 3. A dict like {")": "(", "]": "[", "}": "{"} maps each closer to the
    opener it needs, so you avoid a long if/elif chain.
 4. On a closer: if the stack is empty OR the top is not the matching
-   opener -> return False. Otherwise pop and continue.
+   opener, return False. Otherwise pop and continue.
 5. After the loop, the string is balanced only if the stack is empty.
 
 ========================================================================
@@ -103,10 +122,10 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- Ignore any non-bracket characters so "a(b[c]d)e" -> True.
-- Write `first_error_index(s) -> int` returning the index of the first
-  character that breaks balance (or -1 if balanced / len(s) if some
-  openers are never closed).
+- Ignore any non-bracket characters, so "a(b[c]d)e" -> True.
+- Write `first_error_index(s) -> int`. It returns the index of the
+  first character that breaks balance, -1 if `s` is balanced, or
+  len(s) if some openers are never closed.
 """
 
 

@@ -5,94 +5,144 @@ Topics:    list/dict/set comprehensions, nested comprehensions, zip
 Source:    Classic Python idiom practice
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-A "comprehension" is a compact way to build a list, dict or set from
-another iterable, in a single expression:
+Write five small functions. Each one builds a new list, dict or set
+from its input using a comprehension:
+
+- `squares_of_evens(nums)`: the squares of the even numbers.
+- `word_lengths(words)`: a dict mapping each word to its length.
+- `unique_first_letters(words)`: a set of the words' first letters.
+- `flatten_matrix(matrix)`: all of a matrix's values in one flat list.
+- `transpose(matrix)`: the matrix with rows and columns swapped.
+
+    squares_of_evens([1, 2, 3, 4, -6])  ->  [4, 16, 36]
+
+========================================================================
+BACKGROUND: COMPREHENSIONS AND MATRICES
+========================================================================
+A "comprehension" builds a list, dict or set from another iterable
+(anything you can loop over) in a single expression. These two do the
+same job:
+
+    # Loop version
+    result = []
+    for x in nums:
+        result.append(x * 2)
+
+    # Comprehension version: the same thing in one line
+    result = [x * 2 for x in nums]
+
+The four shapes you need:
 
     [x * 2 for x in nums]                 # list comprehension
     [x for x in nums if x > 0]            # ...with a filter
     {word: len(word) for word in words}   # dict comprehension
     {word[0] for word in words}           # set comprehension
 
-Implement the five small functions below. The rule of this challenge:
-each function body should be a SINGLE `return` statement containing a
-comprehension (write a loop version first if that helps, then convert).
+A "matrix" here is a list of rows, and each row is a list of numbers:
 
-1. `squares_of_evens(nums)`   -> list of the squares of the EVEN numbers
-                                 only, in original order.
-2. `word_lengths(words)`      -> dict mapping each word to its length.
-                                 If a word repeats, it appears once (a
-                                 dict can't have duplicate keys).
-3. `unique_first_letters(words)` -> set of the first character of each
-                                 word, lowercased. Empty strings are
-                                 skipped (they have no first letter).
-4. `flatten_matrix(matrix)`   -> one flat list of all values, row by row
-                                 (left to right, top to bottom).
-5. `transpose(matrix)`        -> swap rows and columns: row i of the
-                                 result is column i of the input.
-
-A "matrix" here is a list of rows, each row a list of numbers:
     [[1, 2, 3],
-     [4, 5, 6]]        has 2 rows and 3 columns.
-Its transpose is
+     [4, 5, 6]]        2 rows, 3 columns
+
+To "transpose" it, turn each column into a row. Row 0 of the result is
+column 0 of the input, row 1 is column 1, and so on:
+
     [[1, 4],
      [2, 5],
-     [3, 6]]           which has 3 rows and 2 columns.
+     [3, 6]]           3 rows, 2 columns
+
+========================================================================
+THE RULES
+========================================================================
+Your functions must:
+1. Each have a body that is a single `return` statement containing a
+   comprehension. (Write a loop version first if that helps, then
+   convert it.) The one exception: `transpose` may also have an `if` +
+   `raise` check before its return (see hint 4).
+2. Not change (mutate) any input list.
+3. `squares_of_evens`: return a list of the squares of the EVEN
+   numbers only, in their original order.
+4. `word_lengths`: return a dict mapping each word to its length. A
+   repeated word appears only once, because a dict can't have
+   duplicate keys.
+5. `unique_first_letters`: return a set of the first character of each
+   word, lowercased. Skip empty strings (they have no first letter).
+6. `flatten_matrix`: return one flat list of all the values, row by
+   row (left to right, top to bottom). Rows may have different
+   lengths, including empty rows. Flatten only ONE level of nesting.
+7. `transpose`: return a list of LISTS (not tuples), where row i of
+   the result is column i of the input.
+8. `transpose`: raise `ValueError` if the rows are not all the same
+   length (the matrix must be "rectangular").
+9. `transpose`: return [] for []. A matrix of empty rows, like
+   [[], []], has zero columns, so its transpose is also [].
+
+You can assume:
+- `nums` is a list of ints and `words` is a list of strings.
+- `matrix` is a list of lists of numbers.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> squares_of_evens([1, 2, 3, 4, -6])
-    [4, 16, 36]
+Each line shows a call, then what it should return.
 
-    >>> word_lengths(["hi", "there", "hi"])
-    {'hi': 2, 'there': 5}
+    squares_of_evens([1, 2, 3, 4, -6])    ->  [4, 16, 36]
+        2, 4 and -6 are even. Their squares are 4, 16 and 36.
 
-    >>> unique_first_letters(["Apple", "avocado", "banana", ""]) == {"a", "b"}
-    True
+    word_lengths(["hi", "there", "hi"])   ->  {'hi': 2, 'there': 5}
+        "hi" appears twice but becomes only one key.
 
-    >>> flatten_matrix([[1, 2], [3], []])
-    [1, 2, 3]
+    unique_first_letters(["Apple", "avocado", "banana", ""])
+        ->  {'a', 'b'}
+        "A" is lowercased, so "Apple" and "avocado" share "a". The
+        empty string is skipped. (A set may print in any order, so
+        compare with == in your tests.)
 
-    >>> transpose([[1, 2, 3], [4, 5, 6]])
-    [[1, 4], [2, 5], [3, 6]]
+    flatten_matrix([[1, 2], [3], []])     ->  [1, 2, 3]
+        The rows are joined in order. The empty row adds nothing.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- All inputs are lists and must NOT be modified.
-- `flatten_matrix` accepts rows of different lengths (including empty
-  rows); it only flattens ONE level (no deeper nesting).
-- `transpose` requires a rectangular matrix (all rows the same length).
-  If rows have different lengths, raise `ValueError`.
-  `transpose([])` returns `[]`. A matrix of empty rows like `[[], []]`
-  has zero columns, so its transpose is `[]`.
-- `transpose` must return a list of LISTS (not tuples).
+    transpose([[1, 2, 3], [4, 5, 6]])     ->  [[1, 4], [2, 5], [3, 6]]
+        Column 0 (1 and 4) becomes row 0, and so on.
+
+    transpose([[1, 2], [3]])              ->  raises ValueError
+        The rows have different lengths.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- Empty inputs for every function -> [], {}, set(), [], []
-- squares_of_evens: negatives and zero (0 is even: 0 -> 0)
-- word_lengths: repeated words, empty string "" -> {"": 0}
-- unique_first_letters: mixed case collapses ("A" and "a" -> {"a"})
-- flatten_matrix: empty rows in the middle
-- transpose: a single row [[1, 2, 3]] -> [[1], [2], [3]]
-- transpose: a square matrix; transposing twice gives back the original
-- transpose: ragged rows [[1, 2], [3]] -> ValueError
+- Empty input for every function -> [], {}, set(), [], [] (in the
+  order the functions are listed above)
+- squares_of_evens with negatives and zero: [0, -2] -> [0, 4]
+  (0 is even)
+- word_lengths with repeated words, and with an empty string:
+  [""] -> {"": 0}
+- unique_first_letters with mixed case: ["A", "a"] -> {"a"}
+- flatten_matrix with an empty row in the middle:
+  [[1], [], [2]] -> [1, 2]
+- transpose of a single row: [[1, 2, 3]] -> [[1], [2], [3]]
+- transpose of a square matrix: transposing twice gives back the
+  original
+- transpose with ragged rows (rows of different lengths):
+  [[1, 2], [3]] -> ValueError
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
-1. Filter goes at the end: `[expr for x in xs if condition]`.
-2. Nested comprehension reads like nested for loops, in the SAME order:
-   `[v for row in matrix for v in row]`.
-3. Transpose: `zip(*matrix)` groups the i-th item of every row together
-   (the `*` "unpacks" the rows as separate arguments to zip). Convert
-   each tuple with `list(...)`.
-4. For the ragged check, compare every `len(row)` with `len(matrix[0])`
-   before transposing (a plain `if` + `raise` before the return is fine).
+1. The filter goes at the end: `[expr for x in xs if condition]`.
+2. A nested comprehension reads like nested for loops, in the SAME
+   order. `[v for row in matrix for v in row]` means:
+       for row in matrix:
+           for v in row:
+               ...keep v...
+3. For transpose, `zip(*matrix)` groups the i-th item of every row
+   together. The `*` "unpacks" the rows: it passes each row to zip as
+   a separate argument. So zip(*[[1, 2], [3, 4]]) is
+   zip([1, 2], [3, 4]), which gives (1, 3) and then (2, 4). Turn each
+   tuple into a list with `list(...)`.
+4. For the ragged check, compare every `len(row)` with
+   `len(matrix[0])` before transposing. A plain `if` + `raise` before
+   the return is fine.
 
 ========================================================================
 PYTHON CONCEPTS TO LEARN
@@ -107,10 +157,12 @@ PYTHON CONCEPTS TO LEARN
 STRETCH GOALS
 ========================================================================
 - `transpose` without zip: `[[row[i] for row in matrix] for i in ...]`.
-- A generator expression version of `squares_of_evens` and
-  `sum(...)` over it without building a list.
-- `flatten_deep(nested)` that flattens ANY depth (needs recursion, not
-  just a comprehension).
+- Write a generator expression version of `squares_of_evens` (like a
+  list comprehension but in round brackets: it makes values one at a
+  time instead of building a list), and `sum(...)` over it.
+- `flatten_deep(nested)`, which flattens ANY depth, such as
+  [1, [2, [3]]] -> [1, 2, 3]. This needs recursion (a function that
+  calls itself), not just a comprehension.
 """
 
 

@@ -30,7 +30,9 @@ pytest
 ## Style
 
 Each challenge file follows a fixed docblock structure (see any file under
-`challenges/level01_basics/` for the template): PROBLEM, EXAMPLES, CONSTRAINTS,
-EDGE CASES TO TEST, HINTS, PYTHON CONCEPTS TO LEARN, STRETCH GOALS (and
-COMPLEXITY TARGET from level 07 onward). Please match it if you're proposing
-a new one.
+`challenges/level03_lists/ex03_rotate_list.py` for the template): YOUR TASK,
+an optional background section, THE RULES, EXAMPLES, COMPLEXITY TARGET (from
+level 07 onward), EDGE CASES TO TEST, HINTS, PYTHON CONCEPTS TO LEARN and
+STRETCH GOALS. The audience is a Python beginner: use short sentences, explain
+jargon the first time it appears, and give each example a one-line "why".
+Please match it if you're proposing a new one.

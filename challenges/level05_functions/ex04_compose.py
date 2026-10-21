@@ -5,88 +5,128 @@ Topics:    returning functions, *args of functions, function composition
 Source:    Functional-programming classic
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-"Composing" functions means chaining them so the output of one becomes
-the input of the next. In maths, (f o g)(x) means f(g(x)): apply g
-FIRST, then f. That is, composition reads RIGHT-TO-LEFT.
+Write two functions that chain other functions together, so the
+output of one becomes the input of the next:
 
-Part 1 - `compose(*funcs)`
+- `compose(*funcs)` RETURNS A NEW FUNCTION that applies `funcs` from
+  right to left.
+- `pipe(value, *funcs)` pushes `value` through `funcs` from left to
+  right and returns the result straight away.
 
-Take any number of one-argument functions and RETURN A NEW FUNCTION
-(do not call anything yet!). When that new function is called with a
-value x, it applies the functions right-to-left:
+    compose(len, str.strip)("  hi ")  ->  2     (strip first, then len)
 
-    compose(f, g, h)(x)  ==  f(g(h(x)))
+========================================================================
+BACKGROUND: COMPOSING FUNCTIONS
+========================================================================
+"Composing" functions means chaining them. In maths, (f o g)(x) means
+f(g(x)): apply g FIRST, then f. So composition reads RIGHT TO LEFT:
 
-- `compose()` with no functions returns the "identity" function: a
-  function that returns its argument unchanged (identity(5) == 5).
-- `compose(f)` returns a function that behaves like f.
-- The returned function takes exactly ONE argument.
+    compose(f, g, h)(x)  ==  f(g(h(x)))     h runs first, f runs last
 
-Part 2 - `pipe(value, *funcs)`
+A pipeline reads LEFT TO RIGHT, like a Unix `|`:
 
-This one runs immediately and returns a value. It pushes `value`
-through the functions LEFT-TO-RIGHT, like a pipeline or a Unix `|`:
+    pipe(x, f, g, h)     ==  h(g(f(x)))     f runs first, h runs last
 
-    pipe(x, f, g, h)  ==  h(g(f(x)))
+So compose and pipe apply the same functions in OPPOSITE orders:
 
-- `pipe(x)` with no functions returns x unchanged.
+    compose(f, g, h)(x)  ==  pipe(x, h, g, f)
 
-Note: compose and pipe apply the SAME functions in OPPOSITE orders:
-    compose(f, g, h)(x) == pipe(x, h, g, f)
+The other big difference: `pipe` gives you a value right away.
+`compose` gives you a FUNCTION, and nothing runs until you call that
+function. A function can return a function, just as it can return a
+number:
+
+    def make_adder(n):
+        def add(x):           # an "inner function", defined inside
+            return x + n
+        return add            # return the function itself: no ()
+
+    add_ten = make_adder(10)  # nothing is added yet
+    add_ten(5)                # -> 15
+
+The inner function `add` still remembers `n` after make_adder has
+returned. An inner function that remembers outer variables like this
+is called a "closure".
+
+========================================================================
+THE RULES
+========================================================================
+For `compose`, your function must:
+1. Return a NEW function. Do not call any of `funcs` inside compose
+   itself. They run only when the returned function is called (test
+   this: see the edge cases).
+2. Make the returned function take exactly ONE argument x and apply
+   the functions right to left: compose(f, g, h)(x) == f(g(h(x))).
+3. With no functions, return the "identity" function: a function that
+   returns its argument unchanged, so compose()(5) == 5.
+4. With one function, return a function that behaves like that
+   function.
+5. Make the returned function reusable: it can be called many times,
+   and each call is independent.
+
+For `pipe`, your function must:
+6. Run straight away and return a value: pipe(x, f, g, h) ==
+   h(g(f(x))).
+7. With no functions, return `value` unchanged: pipe(x) == x.
+
+For both:
+8. Let exceptions raised by any function propagate (pass through to
+   the caller) unchanged.
+
+You can assume:
+- Every function in `funcs` takes one argument and returns one value.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> add_one = lambda x: x + 1
-    >>> double = lambda x: x * 2
+Each line shows a call, then what it should return. The examples use
+two small helper functions:
 
-    >>> compose(add_one, double)(5)       # add_one(double(5))
-    11
+    add_one = lambda x: x + 1
+    double = lambda x: x * 2
 
-    >>> compose(double, add_one)(5)       # double(add_one(5))
-    12
+    compose(add_one, double)(5)    ->  11
+        Right to left: double(5) is 10, then add_one(10) is 11.
 
-    >>> compose()("anything")
-    'anything'
+    compose(double, add_one)(5)    ->  12
+        add_one(5) is 6, then double(6) is 12. Order matters!
 
-    >>> pipe(5, add_one, double)          # double(add_one(5))
-    12
+    compose()("anything")          ->  'anything'
+        No functions, so you get the identity function.
 
-    >>> pipe("  Hi ", str.strip, str.lower, len)
-    2
+    pipe(5, add_one, double)       ->  12
+        Left to right: add_one(5) is 6, then double(6) is 12.
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- Every function in `funcs` takes one argument and returns one value.
-- `compose` must not call any of the funcs until the returned function
-  is called (test this - see edge cases).
-- The composed function can be called many times; each call is
-  independent.
-- Exceptions raised by any function propagate unchanged.
+    pipe("  Hi ", str.strip, str.lower, len)  ->  2
+        "  Hi " -> "Hi" -> "hi" -> 2. The last step changes the type
+        from str to int.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
-- compose() is the identity; pipe(x) returns x
-- A single function
-- Order matters: compose(f, g) differs from compose(g, f)
-- Functions that change the type (str -> int, e.g. `len`)
-- compose calls nothing until invoked: pass a function that appends to
-  a list, check the list is still empty after compose(...), then call
-- The composed function can be reused with different inputs
+- compose() is the identity: compose()(5) -> 5. And pipe(7) -> 7
+- A single function: compose(abs)(-3) -> 3, pipe(-3, abs) -> 3
+- Order matters: compose(add_one, double)(5) -> 11, but
+  compose(double, add_one)(5) -> 12
+- Functions that change the type: compose(len, str.strip)("  hi ")
+  -> 2
+- compose calls nothing until invoked: pass a function that appends
+  to a list. Check the list is still empty after compose(...), then
+  call the result and check that the list has grown
+- The composed function can be reused: call it with 1, then with 2,
+  and check both answers
 - compose(f, g, h)(x) == pipe(x, h, g, f) for some sample functions
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
-1. Define a function INSIDE compose (an "inner function") and
-   `return` it - without parentheses.
-2. The inner function can see `funcs` from the outer function even
-   after compose has returned. That's called a closure.
-3. Right-to-left: loop over `reversed(funcs)` and update a running
+1. Define a function INSIDE compose (an "inner function") and `return`
+   it without parentheses.
+2. The inner function can see `funcs` from the outer function, even
+   after compose has returned. That's a closure.
+3. Right to left: loop over `reversed(funcs)` and update a running
    value: `result = f(result)`.
 4. pipe is the same loop, forwards, but it runs straight away.
 5. Stretch thought: `pipe(x, *fs) == compose(*reversed(fs))(x)`.
@@ -96,7 +136,7 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 - Nested (inner) functions and returning a function
 - Closures (inner functions remembering outer variables)
-- `*funcs` - *args can hold functions, not only numbers
+- `*funcs`: *args can hold functions, not only numbers
 - `reversed()`
 - `Callable[[Any], Any]` type hints
 - `functools.reduce` (stretch)
@@ -104,11 +144,12 @@ PYTHON CONCEPTS TO LEARN
 ========================================================================
 STRETCH GOALS
 ========================================================================
-- Implement compose with `functools.reduce` in one expression.
+- Implement compose with `functools.reduce` (which combines a list of
+  things into one, two at a time) in one expression.
 - Allow the RIGHTMOST function in compose to take any arguments:
   compose(str, max)(3, 9, 4) == "9".
-- Raise `TypeError` at compose-time if any argument is not callable
-  (hint: `callable(obj)`).
+- Raise `TypeError` at compose time (when compose is called, not
+  later) if any argument is not callable (hint: `callable(obj)`).
 """
 
 from collections.abc import Callable

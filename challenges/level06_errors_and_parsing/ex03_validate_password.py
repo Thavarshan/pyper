@@ -1,19 +1,26 @@
-"""
+r"""
 Challenge: Validate Password
 Level:     06 - Errors and Parsing
 Topics:    input validation, str methods, any(), collecting errors
 Source:    Classic validation exercise
 
 ========================================================================
-PROBLEM
+YOUR TASK
 ========================================================================
-Many sign-up forms check passwords against a set of rules and tell you
-EVERY rule you broke at once (instead of one at a time). Write
-`validate_password(pw)` that returns a list of the names of every rule
-the password fails. An empty list means the password is valid.
+Many sign-up forms tell you EVERY password rule you broke at once,
+instead of one at a time. Write `validate_password(pw)`. It checks a
+password against five rules and returns a list of the names of every
+rule it fails. An empty list means the password is valid. Then write
+`is_strong(pw)`, which returns True only when no rule fails.
 
-The rules, their EXACT names, and the order they must appear in the
-returned list:
+    validate_password("abc")
+        ->  ['too_short', 'no_uppercase', 'no_digit', 'no_symbol']
+
+========================================================================
+THE RULES
+========================================================================
+These are the five password rules. Each has an EXACT name, and the
+returned list must use this order:
 
     Order  Rule name        Fails when...
     -----  ---------------  -------------------------------------------
@@ -21,69 +28,72 @@ returned list:
     2      "no_uppercase"   there is no uppercase letter (str.isupper)
     3      "no_lowercase"   there is no lowercase letter (str.islower)
     4      "no_digit"       there is no digit character (str.isdigit)
-    5      "no_symbol"      there is no "symbol", i.e. no character
-                            from string.punctuation:
-                            !"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~
+    5      "no_symbol"      there is no "symbol": no character from
+                            string.punctuation, which is
+                            !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
 
-Notes:
-- Spaces are allowed in passwords but do NOT count as symbols.
-- Always return the failed names in the table order above.
+Your functions must:
+1. `validate_password`: return a `list[str]` with the name of every
+   rule that `pw` fails, each name at most once, in the table order.
+2. Return [] when the password passes every rule.
+3. Treat exactly 8 characters as long enough (the rule is "< 8").
+4. Allow spaces in passwords, but NOT count a space as a symbol.
+5. `is_strong`: return True if the password passes every rule, else
+   False. Return a real bool, and reuse `validate_password` to decide.
+6. Both functions: raise `TypeError` if `pw` is not a str (for example
+   None or 12345678). The message is up to you.
 
-Then write `is_strong(pw)` that returns True if the password passes
-every rule, else False. It must reuse `validate_password`.
-
-If `pw` is not a str (e.g. None or 12345678), raise `TypeError` from
-BOTH functions.
+You can assume:
+- When `pw` is a str, it may contain any characters.
 
 ========================================================================
 EXAMPLES
 ========================================================================
-    >>> validate_password("Abcdef1!")
-    []
+Each line shows a call, then what it should return.
 
-    >>> validate_password("abc")
-    ['too_short', 'no_uppercase', 'no_digit', 'no_symbol']
+    validate_password("Abcdef1!")     ->  []
+        8 characters, with an uppercase letter, a lowercase letter, a
+        digit and a symbol.
 
-    >>> validate_password("PASSWORD123")
-    ['no_lowercase', 'no_symbol']
+    validate_password("abc")
+        ->  ['too_short', 'no_uppercase', 'no_digit', 'no_symbol']
+        Only the lowercase rule passes. The names come in table order.
 
-    >>> is_strong("Tr0ub4dor&3")
-    True
+    validate_password("PASSWORD123")  ->  ['no_lowercase', 'no_symbol']
+        Long enough, with uppercase letters and digits, but no
+        lowercase letter and no symbol.
 
-    >>> is_strong("password")
-    False
+    is_strong("Tr0ub4dor&3")          ->  True
+        It passes all five rules ("&" is the symbol).
 
-========================================================================
-CONSTRAINTS
-========================================================================
-- Return type is `list[str]`, rule names exactly as in the table, in
-  table order, each at most once.
-- Exactly 8 characters is long enough (the rule is "< 8").
-- Non-str input -> `TypeError` (message is up to you).
-- is_strong returns a real bool.
+    is_strong("password")             ->  False
+        validate_password gives a non-empty list for it.
 
 ========================================================================
 EDGE CASES TO TEST
 ========================================================================
 - A valid password -> []
-- Empty string "" -> all five rule names
-- Exactly 7 chars vs exactly 8 chars (boundary!)
-- Only one rule broken each time (one test per rule)
-- A space is not a symbol: "Abcdefg1 " -> ["no_symbol"]
-- Order of the returned names always matches the table
-- None / int input -> TypeError
+- Empty string "" -> all five rule names, in table order
+- The length boundary: "Abcde1!" (7 characters) -> ['too_short'], and
+  "Abcdef1!" (8 characters) -> []
+- One rule broken at a time (one test per rule)
+- A space is not a symbol: "Abcdefg1 " -> ['no_symbol']
+- The returned names always come in table order
+- None or an int -> TypeError
 - is_strong agrees with validate_password on several inputs
 
 ========================================================================
 HINTS (read only if you get stuck)
 ========================================================================
-1. Start with `failures = []` and append a name for every failed check.
-   Checking in table order gives you the right output order for free.
+1. Start with `failures = []` and append a name for every failed
+   check. If you check in table order, you get the right output order
+   for free.
 2. `any(ch.isupper() for ch in pw)` is True if at least one character
    is uppercase.
-3. `import string` and test `ch in string.punctuation` for symbols.
-4. is_strong is a one-liner: `return not validate_password(pw)` (an
-   empty list is falsy) or `== []`.
+3. `import string`, then test `ch in string.punctuation` for symbols.
+4. is_strong is a one-liner: `return not validate_password(pw)`. (An
+   empty list is falsy, meaning `if` treats it as False, so
+   `not []` is True.) Comparing with `== []` works too.
 5. Type check: `if not isinstance(pw, str): raise TypeError(...)`.
 
 ========================================================================
@@ -93,8 +103,10 @@ PYTHON CONCEPTS TO LEARN
 - `any()` / `all()` with generator expressions
 - The `string` module constants
 - Collecting all errors vs failing fast on the first one
-- Guard clauses and `isinstance` type checks
-- `@pytest.mark.parametrize` - perfect for testing each rule
+- Guard clauses (early checks at the top of a function) and
+  `isinstance` type checks
+- `@pytest.mark.parametrize` (runs one test with many inputs): perfect
+  for testing each rule
 
 ========================================================================
 STRETCH GOALS
