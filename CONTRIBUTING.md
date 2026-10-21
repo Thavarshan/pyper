@@ -31,8 +31,8 @@ pytest
 
 Each challenge file follows a fixed docblock structure (see any file under
 `challenges/level03_lists/ex03_rotate_list.py` for the template): YOUR TASK,
-an optional background section, THE RULES, EXAMPLES, COMPLEXITY TARGET (from
-level 07 onward), EDGE CASES TO TEST, HINTS, PYTHON CONCEPTS TO LEARN and
+an optional background section, THE RULES, EXAMPLES, COMPLEXITY TARGET (levels
+07 to 12), EDGE CASES TO TEST, HINTS, PYTHON CONCEPTS TO LEARN and
 STRETCH GOALS. The audience is a Python beginner: use short sentences, explain
 jargon the first time it appears, and give each example a one-line "why".
 Please match it if you're proposing a new one.

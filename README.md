@@ -4,8 +4,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml)
 
-A Python learning playground: 94 coding challenges that start with the basics
-and build up to LeetCode-style algorithms. You solve them **test-first**.
+A Python learning playground: 103 coding challenges that start with the basics
+and build up to LeetCode-style algorithms and concurrency. You solve them **test-first**.
 
 Each challenge is a stub function (or class) that just raises
 `NotImplementedError`. Above it, a docblock explains the task in plain
@@ -22,6 +22,7 @@ New to the jargon? [GLOSSARY.md](GLOSSARY.md) explains terms like *mutate*,
 - Dev dependencies, installed into the virtual environment by the setup below:
   - [pytest](https://docs.pytest.org/): the test runner
   - [pytest-cov](https://pytest-cov.readthedocs.io/): coverage reports
+  - [pytest-timeout](https://github.com/pytest-dev/pytest-timeout): fails a test that hangs (e.g. a deadlock) instead of waiting forever
 
 There are no runtime dependencies. Every challenge uses only the standard library.
 
@@ -74,7 +75,7 @@ Every challenge docblock has the same sections, in this order:
 | **Background** (some challenges) | An explanation of an idea you need first, such as "rotate", a decorator or a binary search tree, with small pictures. |
 | **THE RULES** | A numbered checklist of *everything* your code must do, each rule stated once. "You can assume" lists what you don't need to check. |
 | **EXAMPLES** | `call  ->  result`, with a line under each one explaining *why*. |
-| **COMPLEXITY TARGET** (level 07+) | How fast your solution should be, in Big-O plus plain English. |
+| **COMPLEXITY TARGET** (levels 07–12) | How fast your solution should be, in Big-O plus plain English. |
 | **EDGE CASES TO TEST** | Ready-made test ideas, each with its expected result. Turn each one into an `assert`. |
 | **HINTS** | From a gentle nudge to nearly the answer. Read one at a time. |
 | **PYTHON CONCEPTS TO LEARN** | The Python features this challenge practises. |
@@ -103,6 +104,10 @@ pytest --cov=challenges --cov-report=term-missing   # coverage, with uncovered l
 - **Many cases, one test:** `@pytest.mark.parametrize("n, expected", [(1, ...), (2, ...)])`
 - **Expected exceptions:** `with pytest.raises(ValueError): ...`
 - **Floats:** `assert result == pytest.approx(98.6)` instead of `==`
+- **Threads and async (level 13):** check timing with generous margins
+  (`assert elapsed < 0.6`, never `== 0.2`), join threads with a timeout
+  (`t.join(timeout=5)`), and run async code with `asyncio.run(...)` inside a
+  normal test function
 - **Order doesn't matter:** compare `sorted(result) == sorted(expected)`
   (the docblock says when this applies)
 
@@ -117,7 +122,7 @@ pyper/
 │   │   ├── __init__.py            level overview: concepts covered
 │   │   ├── ex01_greet.py          challenge stub + docblock
 │   │   └── ...
-│   └── level02_strings/ ... level12_algorithms/
+│   └── level02_strings/ ... level13_concurrency/
 ├── tests/
 │   └── challenges/
 │       ├── level01_basics/
@@ -160,6 +165,7 @@ assert tree_to_list(root) == [3, 9, 20, None, None, 15, 7]
 | 10 | **Data structures**: stacks, linked lists, heaps, caches | valid_parentheses, reverse_linked_list, merge_two_sorted_lists, linked_list_cycle, min_stack, kth_largest, top_k_frequent, lru_cache |
 | 11 | **Trees & graphs**: DFS, BFS, topological sort | max_depth, invert_tree, level_order, validate_bst, lowest_common_ancestor_bst, number_of_islands, course_schedule, shortest_path_binary_matrix |
 | 12 | **Algorithms**: two pointers, sliding window, dynamic programming | best_time_to_buy_sell_stock, container_with_most_water, three_sum, longest_substring_without_repeating, maximum_subarray, climbing_stairs, coin_change, longest_increasing_subsequence, edit_distance |
+| 13 | **Concurrency**: threads, locks, deadlock, queues, thread/process pools, asyncio | run_in_threads, safe_counter, bank_transfer, producer_consumer, stoppable_worker, thread_pool, process_pool, asyncio_gather, async_limited |
 
 Work through the levels in order, since later levels assume earlier concepts.
 Within a level, challenges get harder as the numbers go up.
@@ -180,6 +186,7 @@ Tick off challenges as you finish them:
 - [ ] Level 10: Data structures (0/8)
 - [ ] Level 11: Trees & graphs (0/8)
 - [ ] Level 12: Algorithms (0/9)
+- [ ] Level 13: Concurrency (0/9)
 
 ## Contributing
 

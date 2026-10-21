@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Jerome Thayananthajothy", email = "jerome@sinolanka.com" }]
-keywords = ["python", "learning", "coding-challenges", "leetcode", "pytest", "algorithms", "data-structures"]
+keywords = ["python", "learning", "coding-challenges", "leetcode", "pytest", "algorithms", "data-structures", "concurrency", "asyncio"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Education",
@@ -32,6 +32,7 @@ Issues = "https://github.com/Thavarshan/pyper/issues"
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
+    "pytest-timeout>=2.3",
 ]
 
 [tool.setuptools.packages.find]
@@ -40,3 +41,6 @@ include = ["challenges*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# Fail (rather than hang) any test stuck for over 60 s, e.g. a deadlock in
+# a level 13 concurrency solution. Provided by pytest-timeout.
+timeout = 60
