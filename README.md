@@ -19,6 +19,7 @@ New to the jargon? [GLOSSARY.md](GLOSSARY.md) explains terms like *mutate*,
 ## Requirements
 
 - Python 3.10 or newer (developed with 3.12)
+- [uv](https://docs.astral.sh/uv/) for Python version management, environments, and dependencies
 - Dev dependencies, installed into the virtual environment by the setup below:
   - [pytest](https://docs.pytest.org/): the test runner
   - [pytest-cov](https://pytest-cov.readthedocs.io/): coverage reports
@@ -28,19 +29,20 @@ There are no runtime dependencies. Every challenge uses only the standard librar
 
 ## Setup
 
-Create the virtual environment and install the development dependencies:
+Install the project and its development dependencies from the lockfile:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -e ".[dev]"
+uv sync --locked
 ```
 
-Activate it in each new terminal with `source .venv/bin/activate`.
+This creates `.venv`, installs the project in editable mode, and installs the
+locked development dependencies. Run Python tools through `uv run`; there is
+no need to activate the environment:
 
-`pip install -e .` installs the `challenges` package in *editable* mode, so
-edits to your solutions are picked up immediately without reinstalling.
+```bash
+uv run pytest
+uv run python path/to/script.py
+```
 
 ### VS Code
 
@@ -59,7 +61,7 @@ click. If tests don't show up, run **Python: Select Interpreter** and choose
    code under test and includes commented-out examples to get you started.
 3. **Run the tests and watch them fail** (red). Before you implement anything,
    tests fail with `NotImplementedError`, which is expected:
-   `pytest tests/challenges/level01_basics/test_ex01_greet.py -v`
+   `uv run pytest tests/challenges/level01_basics/test_ex01_greet.py -v`
 4. **Implement** the function until your tests pass (green).
 5. **Refactor**, then try the stretch goals.
 
@@ -87,12 +89,12 @@ the source of truth. If a word is unfamiliar, check [GLOSSARY.md](GLOSSARY.md).
 ### Useful pytest commands
 
 ```bash
-pytest                                     # everything
-pytest tests/challenges/level02_strings    # one level
-pytest -k anagram -v                       # tests whose name matches "anagram"
-pytest -x                                  # stop at the first failure
-pytest --lf                                # re-run only the tests that failed last time
-pytest --cov=challenges --cov-report=term-missing   # coverage, with uncovered lines
+uv run pytest                                     # everything
+uv run pytest tests/challenges/level02_strings    # one level
+uv run pytest -k anagram -v                       # tests whose name matches "anagram"
+uv run pytest -x                                  # stop at the first failure
+uv run pytest --lf                                # re-run only the tests that failed last time
+uv run pytest --cov=challenges --cov-report=term-missing   # coverage, with uncovered lines
 ```
 
 > Tests are already written for the first three challenges, whose current
@@ -131,6 +133,8 @@ pyper/
 │       └── ...
 ├── .vscode/                       editor settings (interpreter + pytest)
 ├── pyproject.toml                 project metadata, dev dependencies, pytest config
+├── uv.lock                        locked development dependencies
+├── .python-version                default Python version for uv
 └── README.md
 ```
 

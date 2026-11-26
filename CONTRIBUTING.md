@@ -21,10 +21,8 @@ function body that isn't `raise NotImplementedError`).
 ## Development setup
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-pytest
+uv sync --locked
+uv run pytest
 ```
 
 ## Style
